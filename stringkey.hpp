@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace Maike
+namespace Alice
 	{
 	class Stringkey
 		{

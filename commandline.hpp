@@ -14,8 +14,6 @@ namespace Alice
 		{
 		public:
 			CommandLine(int argc,const char* const* argv);
-
-		private:
 		};
 	};
 

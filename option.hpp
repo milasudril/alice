@@ -3,23 +3,26 @@
 #ifndef ALICE_OPTION_HPP
 #define ALICE_OPTION_HPP
 
+#include "optionbase.hpp"
+#include "typeinfo.hpp"
+
 #include <cstddef>
 #include <vector>
+#include <cstdio>
 
 namespace Alice
 	{
-	template<class T>
-	class Typeinfo;
-
 	template<class Type>
-	class Option
+	class Option:public OptionBase
 		{
 		public:
-			enum class Multiplicity:size_t{ONE,ONE_OR_MORE};
+			constexpr Option():OptionBase(){}
 
-			explicit constexpr Option(const char* name,const char* description
-				,Multiplicity mult):r_name(name),r_description(description)
-				,r_name_type(Typeinfo<Type>::name),m_mult(mult)
+			explicit constexpr Option(const char* group
+				,const char* name,const char* description
+				,Multiplicity mult):
+				OptionBase(group,name,description,Typeinfo<Type>::name
+					,mult)
 				{}
 
 			const Type* valuesBegin() const noexcept
@@ -28,15 +31,28 @@ namespace Alice
 			const Type* valuesEnd() const noexcept
 				{return values.data() + values.size();}
 
-			void helpPrint() const noexcept;
+			void valuesPrint() const noexcept;
 
 		private:
-			const char* r_name;
-			const char* r_description;
-			const char* r_name_type;
-			Multiplicity m_mult;
 			std::vector<Type> values;
 		};
+
+	template<class Type>
+	void Option<Type>::valuesPrint() const noexcept
+		{
+		printf("\"%s\":[",r_name);
+		auto pos=valuesBegin();
+		auto pos_end=valuesEnd();
+		while(pos!=pos_end)
+			{
+			print(*pos);
+			++pos;
+			if(pos!=pos_end)
+				{putchar(',');}
+			}
+		printf("]\n");
+		}
+
 	}
 
 #endif
