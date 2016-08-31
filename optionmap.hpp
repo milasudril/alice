@@ -1,11 +1,11 @@
-//@	{"targest":[{"name:":"optionmap.hpp","type":"include"}]}
+//@	{"targets":[{"name":"optionmap.hpp","type":"include"}]}
 
 #ifndef ALICE_OPTIONMAP_HPP
 #define ALICE_OPTIONMAP_HPP
 
+#include "optionbase.hpp"
 #include "stringkey.hpp"
 #include <tuple>
-
 #include <cstdio>
 
 namespace Alice
@@ -68,6 +68,13 @@ namespace Alice
 			valuesPrint() const noexcept
 				{printf("}");}
 
+			static const KeyType* keysBegin() noexcept
+				{return s_keys;}
+
+			static const KeyType* keysEnd() noexcept
+				{return s_keys + sizeof...(entries);}
+				
+
 		private:
 			static constexpr KeyType s_keys[sizeof...(entries)]={entries::s_key...};
 			std::tuple<typename entries::type...> m_values;
@@ -88,6 +95,9 @@ namespace Alice
 			struct Find<key,0,false>
 				{};
 		};
+
+	template<class KeyType,class ... entries>
+	constexpr KeyType OptionMapImpl<KeyType,entries...>::s_keys[sizeof...(entries)];
 
 	template<class ... entries>
 	using OptionMap=OptionMapImpl<Stringkey::HashValue,entries...>;

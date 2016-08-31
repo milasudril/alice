@@ -18,7 +18,7 @@ namespace Alice
 		public:
 			constexpr Option():OptionBase(){}
 
-			explicit constexpr Option(const char* group
+			constexpr Option(const char* group
 				,const char* name,const char* description
 				,Multiplicity mult):
 				OptionBase(group,name,description,Typeinfo<Type>::name
