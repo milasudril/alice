@@ -27,7 +27,7 @@ namespace Alice
 				{}
 
 			constexpr explicit Option(const OptionBase& opt):OptionBase(opt)
-				{}
+				{r_type_name=Typeinfo<Type>::name;}
 
 			const Type* valuesBegin() const noexcept
 				{return values.data();}

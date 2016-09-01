@@ -14,16 +14,16 @@ void OptionBase::helpPrint(bool group_header) const noexcept
 	switch(m_mult)
 		{
 		case Multiplicity::ZERO_OR_ONE:
-			printf("[=%s]",r_name_type);
+			printf("[=%s]",r_type_name);
 			break;
 		case Multiplicity::ZERO_OR_MORE:
-			printf("[=%s,...]",r_name_type);
+			printf("[=%s,...]",r_type_name);
 			break;
 		case Multiplicity::ONE:
-			printf("=%s",r_name_type);
+			printf("=%s",r_type_name);
 			break;
 		case Multiplicity::ONE_OR_MORE:
-			printf("=%s,...",r_name_type);
+			printf("=%s,...",r_type_name);
 			break;
 		}
 	printf("\n    %s\n\n",r_description);

@@ -14,29 +14,6 @@ class CmdLineError
 
 int main(int argc,char** argv)
 	{
-	Alice::OptionMap<
-		 Alice::OptionMapEntry<Alice::Stringkey("do-stuff-a"),Alice::Option<std::string> >
-		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-b"),Alice::Option<long long int> >
-		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-c"),Alice::Option<double> >
-		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-d"),Alice::Option<std::string> >
-		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-e"),Alice::Option<std::string> >
-		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-f"),Alice::Option<std::string> >
-		> test;
-
-//	test.get<Alice::Stringkey("do-stuff-a")>()=;
-//	test.get<Alice::Stringkey("do-stuff-b")>()=;
-//	test.get<Alice::Stringkey("do-stuff-c")>()=;
-//	test.get<Alice::Stringkey("do-stuff-d")>()=;
-//	test.get<Alice::Stringkey("do-stuff-e")>()=;
-//	test.get<Alice::Stringkey("do-stuff-f")>()=;
-
-	test.helpPrint(1);
-//	Or without group headers:
-//	test.helpPrint(0);
-
-//	Print loaded values as JSON data
-	test.valuesPrint();
-
 	Alice::CommandLine<
 		 Alice::OptionMapEntry<Alice::Stringkey("do-stuff-a"),Alice::Option<std::string> >
 		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-b"),Alice::Option<long long int> >

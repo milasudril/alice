@@ -9,6 +9,7 @@
 #include "option.hpp"
 #include "optionruntime.hpp"
 #include <set>
+#include <array>
 
 namespace Alice
 	{
@@ -17,7 +18,8 @@ namespace Alice
 		{
 		public:
 			template<class ErrorHandler>
-			CommandLine(std::initializer_list<OptionBase> descriptions,int argc,const char* const* argv,ErrorHandler&& eh);
+			CommandLine(const std::array<OptionBase,sizeof...(entries)>& descriptions,int argc
+				,const char* const* argv,ErrorHandler&& eh);
 
 			template<Stringkey::HashValue key>
 			auto get() const noexcept
@@ -28,18 +30,31 @@ namespace Alice
 				{return m_entries.get<key>();}
 
 			void valuesPrint() const noexcept
-				{m_entries.valuesPrint();}
+				{
+				printf("{");
+				auto N=m_entries.size();
+				m_entries.itemsEnum([N](const auto& x,size_t index,Stringkey::HashValue key)
+					{
+					x.valuesPrint();
+					if(index + 1!=N)
+						{printf(",");}
+					});
+				printf("}\n");
+				}
 
 			void helpPrint(bool headers_print=0) const noexcept
 				{
-				printf("Command line options"
+				printf("Command line options\n"
 				       "====================\n");
-				m_entries.itemsEnum([](const auto& x)
+				Stringkey key_prev("");
+				
+				m_entries.itemsEnum([&key_prev,headers_print]
+					(const auto& x,size_t index,Stringkey::HashValue key)
 					{
-					printf("Hello\n");
-					}
-					);
-				m_entries.helpPrint(headers_print);
+					auto group_next=Stringkey(x.groupGet());
+					x.helpPrint(group_next!=key_prev && headers_print);
+					key_prev=group_next;
+					});
 				}
 
 		private:
@@ -48,9 +63,14 @@ namespace Alice
 
 	template<class ... entries>
 	template<class ErrorHandler>
-	CommandLine<entries...>::CommandLine(std::initializer_list<OptionBase> desctiptions
+	CommandLine<entries...>::CommandLine(const std::array<OptionBase,sizeof...(entries)>& descriptions
 		,int argc,const char* const* argv,ErrorHandler&& eh)
 		{
+		m_entries.itemsEnum([&descriptions](auto& x,size_t index,Stringkey::HashValue key)
+			{
+			x=static_cast<typename std::remove_reference<decltype(x)>::type>( descriptions[index] );
+			});
+
 		std::set<Stringkey::HashValue> keys;
 		auto key=m_entries.keysBegin();
 		auto keys_end=m_entries.keysEnd();
@@ -79,7 +99,12 @@ namespace Alice
 			--argc;
 			}
 
-		m_entries.valuesCollect(options);
+		m_entries.itemsEnum([&options](auto& x,size_t index,Stringkey::HashValue key)
+			{
+			auto i=options.find(key);
+			if(i!=options.end())
+				{x.valuesSet(i->second);}
+			});
 		}
 	};
 
