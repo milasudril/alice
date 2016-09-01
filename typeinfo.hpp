@@ -12,6 +12,9 @@ namespace Alice
 		{
 		};
 
+	template<class Type>
+	Type make_value(const std::string& x);
+
 	template<>
 	class Typeinfo<long long int>
 		{
@@ -23,6 +26,10 @@ namespace Alice
 		{printf("%lld",x);}
 
 	template<>
+	long long int make_value<long long int>(const std::string& x)
+		{return std::stoll(x);}
+
+	template<>
 	class Typeinfo<double>
 		{
 		public:
@@ -31,6 +38,10 @@ namespace Alice
 
 	void print(double x)
 		{printf("%.16e",x);}
+
+	template<>
+	double make_value<double>(const std::string& x)
+		{return std::stod(x);}
 
 	template<>
 	class Typeinfo<std::string>
@@ -45,6 +56,9 @@ namespace Alice
 		printf("\"%s\"",x.c_str());
 		}
 	
+	template<>
+	std::string make_value<std::string>(const std::string& x)
+		{return x;}
 	}
 
 #endif

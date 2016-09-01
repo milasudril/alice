@@ -27,6 +27,9 @@ namespace Alice
 			auto& get() noexcept
 				{return m_entries.get<key>();}
 
+			void valuesPrint() const noexcept
+				{m_entries.valuesPrint();}
+
 		private:
 			OptionMap<entries...> m_entries;
 		};
@@ -48,16 +51,22 @@ namespace Alice
 			--argc;
 			++argv;
 			}
+
+		std::map<Stringkey::HashValue,OptionRuntime> options;
 		while(argc!=0)
 			{
 			OptionRuntime option(*argv);
+			auto key=Stringkey(option.nameGet());
 
-			if(keys.find(option.keyGet())==keys.end())
+			if(keys.find(key)==keys.end())
 				{eh.unknownOption(option.nameGet());}
 
+			options.insert({key,std::move(option)});
 			++argv;
 			--argc;
 			}
+
+		m_entries.valuesCollect(options);
 		}
 	};
 

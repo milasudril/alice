@@ -4,7 +4,7 @@
 
 using namespace Alice;
 
-OptionRuntime::OptionRuntime(const char* arg):m_key("")
+OptionRuntime::OptionRuntime(const char* arg)
 	{
 	std::string buffer;
 	enum class State:unsigned int{START_0,START_1,KEY,VALUE,VALUE_ESCAPE};
@@ -49,7 +49,6 @@ OptionRuntime::OptionRuntime(const char* arg):m_key("")
 					case '=':
 						{
 						m_name=buffer;
-						m_key=Stringkey(buffer.c_str());
 						buffer.clear();
 						state=State::VALUE;
 						}
@@ -57,7 +56,6 @@ OptionRuntime::OptionRuntime(const char* arg):m_key("")
 					case '\0':
 						{
 						m_name=buffer;
-						m_key=Stringkey(buffer.c_str());
 						return;
 						}
 

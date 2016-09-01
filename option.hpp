@@ -5,6 +5,7 @@
 
 #include "optionbase.hpp"
 #include "typeinfo.hpp"
+#include "optionruntime.hpp"
 
 #include <cstddef>
 #include <vector>
@@ -33,6 +34,8 @@ namespace Alice
 
 			void valuesPrint() const noexcept;
 
+			void valuesSet(const OptionRuntime& option);
+
 		private:
 			std::vector<Type> values;
 		};
@@ -53,6 +56,17 @@ namespace Alice
 		printf("]\n");
 		}
 
+	template<class Type>
+	void Option<Type>::valuesSet(const OptionRuntime& option)
+		{
+		auto pos=option.valuesBegin();
+		auto pos_end=option.valuesEnd();
+		while(pos!=pos_end)
+			{
+			values.push_back(make_value<Type>(*pos));
+			++pos;
+			}
+		}
 	}
 
 #endif

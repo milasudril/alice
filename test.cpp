@@ -52,5 +52,7 @@ int main(int argc,char** argv)
 		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-f"),Alice::Option<std::string> > >
 		cmd_line{CmdLineError(),argc,argv};
 
+	cmd_line.valuesPrint();
+
 	return 0;
 	}

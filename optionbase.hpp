@@ -32,6 +32,12 @@ namespace Alice
 			constexpr const char* groupGet() const noexcept
 				{return r_group;}
 
+			bool emptyAllowed() const noexcept
+				{
+				return m_mult==Multiplicity::ZERO_OR_ONE 
+					|| m_mult==Multiplicity::ZERO_OR_MORE;
+				}
+
 		protected:
 			void groupHeaderPrint() const noexcept;
 

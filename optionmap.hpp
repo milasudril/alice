@@ -6,10 +6,13 @@
 #include "optionbase.hpp"
 #include "stringkey.hpp"
 #include <tuple>
+#include <map>
 #include <cstdio>
 
 namespace Alice
 	{
+	class OptionRuntime;
+
 	template<class KeyType,KeyType key,class OptionType>
 	class OptionMapEntryImpl
 		{
@@ -67,6 +70,25 @@ namespace Alice
 			typename std::enable_if<index==sizeof...(entries),void>::type
 			valuesPrint() const noexcept
 				{printf("}");}
+
+
+
+			template<size_t index=0>
+			typename std::enable_if<index!=sizeof...(entries), void>::type
+			valuesCollect(const std::map<KeyType,OptionRuntime>& values) noexcept
+				{
+				auto i=values.find(s_keys[index]);
+				if(i!=values.end())
+					{std::get<index>(m_values).valuesSet(i->second);}
+				valuesCollect<index + 1>(values);
+				}
+
+			template<size_t index=0>
+			typename std::enable_if<index==sizeof...(entries),void>::type
+			valuesCollect(const std::map<KeyType,OptionRuntime>& values) const noexcept
+				{}
+
+
 
 			static const KeyType* keysBegin() noexcept
 				{return s_keys;}
