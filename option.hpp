@@ -39,6 +39,9 @@ namespace Alice
 
 			void valuesSet(const OptionRuntime& option);
 
+			size_t valuesCount() const noexcept
+				{return values.size();}
+
 		private:
 			std::vector<Type> values;
 		};
@@ -62,6 +65,7 @@ namespace Alice
 	template<class Type>
 	void Option<Type>::valuesSet(const OptionRuntime& option)
 		{
+		m_valid=1;
 		auto pos=option.valuesBegin();
 		auto pos_end=option.valuesEnd();
 		while(pos!=pos_end)
