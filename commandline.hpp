@@ -99,11 +99,13 @@ namespace Alice
 			--argc;
 			}
 
-		m_entries.itemsEnum([&options](auto& x,size_t index,Stringkey::HashValue key)
+		m_entries.itemsEnum([&options,&eh](auto& x,size_t index,Stringkey::HashValue key)
 			{
 			auto i=options.find(key);
 			if(i!=options.end())
-				{x.valuesSet(i->second);}
+				{
+				x.valuesSet(i->second);
+				}
 			});
 		}
 	};
