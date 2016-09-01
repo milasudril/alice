@@ -23,18 +23,12 @@ int main(int argc,char** argv)
 		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-f"),Alice::Option<std::string> >
 		> test;
 
-	test.get<Alice::Stringkey("do-stuff-a")>()={"Zero or one","do-stuff-a","Perform stuff A"
-		,Alice::OptionBase::Multiplicity::ZERO_OR_ONE};
-	test.get<Alice::Stringkey("do-stuff-b")>()={"Zero or one","do-stuff-b","Perform stuff B"
-		,Alice::OptionBase::Multiplicity::ZERO_OR_ONE};
-	test.get<Alice::Stringkey("do-stuff-c")>()={"Zero or one","do-stuff-c","Perform stuff C"
-		,Alice::OptionBase::Multiplicity::ZERO_OR_ONE};
-	test.get<Alice::Stringkey("do-stuff-d")>()={"Zero or more","do-stuff-d","Perform stuff D"
-		,Alice::OptionBase::Multiplicity::ZERO_OR_MORE};
-	test.get<Alice::Stringkey("do-stuff-e")>()={"One","do-stuff-e","Perform stuff E"
-		,Alice::OptionBase::Multiplicity::ONE};
-	test.get<Alice::Stringkey("do-stuff-f")>()={"One or more","do-stuff-f","Perform stuff F"
-		,Alice::OptionBase::Multiplicity::ONE_OR_MORE};
+//	test.get<Alice::Stringkey("do-stuff-a")>()=;
+//	test.get<Alice::Stringkey("do-stuff-b")>()=;
+//	test.get<Alice::Stringkey("do-stuff-c")>()=;
+//	test.get<Alice::Stringkey("do-stuff-d")>()=;
+//	test.get<Alice::Stringkey("do-stuff-e")>()=;
+//	test.get<Alice::Stringkey("do-stuff-f")>()=;
 
 	test.helpPrint(1);
 //	Or without group headers:
@@ -50,8 +44,15 @@ int main(int argc,char** argv)
 		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-d"),Alice::Option<std::string> >
 		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-e"),Alice::Option<std::string> >
 		,Alice::OptionMapEntry<Alice::Stringkey("do-stuff-f"),Alice::Option<std::string> > >
-		cmd_line{CmdLineError(),argc,argv};
-
+		cmd_line{{
+			 Alice::OptionBase{"Zero or one","do-stuff-a","Perform stuff A",Alice::OptionBase::Multiplicity::ZERO_OR_ONE}
+			,Alice::OptionBase{"Zero or one","do-stuff-b","Perform stuff B",Alice::OptionBase::Multiplicity::ZERO_OR_ONE}
+			,Alice::OptionBase{"Zero or one","do-stuff-c","Perform stuff C",Alice::OptionBase::Multiplicity::ZERO_OR_ONE}
+			,Alice::OptionBase{"Zero or more","do-stuff-d","Perform stuff D",Alice::OptionBase::Multiplicity::ZERO_OR_MORE}
+			,Alice::OptionBase{"One","do-stuff-e","Perform stuff E",Alice::OptionBase::Multiplicity::ONE}
+			,Alice::OptionBase{"One or more","do-stuff-f","Perform stuff F",Alice::OptionBase::Multiplicity::ONE_OR_MORE}
+			},argc,argv,CmdLineError()};
+	cmd_line.helpPrint(1);
 	cmd_line.valuesPrint();
 
 	return 0;

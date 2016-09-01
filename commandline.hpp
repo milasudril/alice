@@ -17,7 +17,7 @@ namespace Alice
 		{
 		public:
 			template<class ErrorHandler>
-			CommandLine(ErrorHandler&& eh,int argc,const char* const* argv);
+			CommandLine(std::initializer_list<OptionBase> descriptions,int argc,const char* const* argv,ErrorHandler&& eh);
 
 			template<Stringkey::HashValue key>
 			auto get() const noexcept
@@ -30,13 +30,26 @@ namespace Alice
 			void valuesPrint() const noexcept
 				{m_entries.valuesPrint();}
 
+			void helpPrint(bool headers_print=0) const noexcept
+				{
+				printf("Command line options"
+				       "====================\n");
+				m_entries.itemsEnum([](const auto& x)
+					{
+					printf("Hello\n");
+					}
+					);
+				m_entries.helpPrint(headers_print);
+				}
+
 		private:
 			OptionMap<entries...> m_entries;
 		};
 
 	template<class ... entries>
 	template<class ErrorHandler>
-	CommandLine<entries...>::CommandLine(ErrorHandler&& eh,int argc,const char* const* argv)
+	CommandLine<entries...>::CommandLine(std::initializer_list<OptionBase> desctiptions
+		,int argc,const char* const* argv,ErrorHandler&& eh)
 		{
 		std::set<Stringkey::HashValue> keys;
 		auto key=m_entries.keysBegin();

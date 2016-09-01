@@ -26,6 +26,9 @@ namespace Alice
 					,mult)
 				{}
 
+			constexpr explicit Option(const OptionBase& opt):OptionBase(opt)
+				{}
+
 			const Type* valuesBegin() const noexcept
 				{return values.data();}
 

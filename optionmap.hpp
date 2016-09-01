@@ -33,6 +33,30 @@ namespace Alice
 			auto& get() noexcept
 				{return std::get<Find<key>::index>(m_values);}
 
+			template<size_t index>
+			auto getByIndex() const noexcept
+				{return std::get<index>(m_values);}
+
+			template<size_t index>
+			auto& getByIndex() noexcept
+				{return std::get<index>(m_values);}
+
+			template<size_t index=0,class Callback>
+			typename std::enable_if<index!=sizeof...(entries),void>::type
+			itemsEnum(Callback&& cb)
+				{
+				cb(getByIndex<index>());
+				itemsEnum<index+1,Callback>();
+				}
+
+			template<size_t index,class Callback>
+			typename std::enable_if<index==sizeof...(entries),void>::type
+			itemsEnum(Callback&&) const noexcept
+				{}				
+
+			static constexpr size_t size() noexcept
+				{return sizeof...(entries);}
+
 			template<size_t index=0>
 			typename std::enable_if<index!=sizeof...(entries), void>::type
 			helpPrint(bool print_groups,KeyType group_prev=0) const noexcept
@@ -89,6 +113,18 @@ namespace Alice
 				{}
 
 
+		/*	template<size_t index=0>
+			typename std::enable_if<index!=sizeof...(entries),void>::type
+			entriesInit(const std::initializer_list<OptionBase>& option_info) noexcept
+				{
+				std::get<index>(m_values)=option_info[index];
+				entriesInit<index + 1>(option_info);
+				}
+
+			template<size_t index=0>
+			typename std::enable_if<index!=sizeof...(entries),void>::type
+			entriesInit(const std::initializer_list<OptionBase>& option_info) const noexcept
+				{}*/
 
 			static const KeyType* keysBegin() noexcept
 				{return s_keys;}

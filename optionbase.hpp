@@ -27,6 +27,12 @@ namespace Alice
 				,r_description(description),r_name_type(name_type),m_mult(mult)
 				{}
 
+			explicit constexpr OptionBase(const char* group
+				,const char* name,const char* description
+				,Multiplicity mult):r_group(group),r_name(name)
+				,r_description(description),r_name_type(""),m_mult(mult)
+				{}
+
 			void helpPrint(bool group_header=0) const noexcept;
 
 			constexpr const char* groupGet() const noexcept
