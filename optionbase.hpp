@@ -20,7 +20,7 @@ namespace Alice
 				,r_description(""),r_type_name("")
 				,m_mult(Multiplicity::ZERO_OR_MORE),m_valid(0){}
 
-			explicit constexpr OptionBase(const char* group
+			constexpr OptionBase(const char* group
 				,const char* name,const char* description
 				,const char* type_name
 				,Multiplicity mult):r_group(group),r_name(name)
@@ -52,6 +52,12 @@ namespace Alice
 
 			bool validIs() const
 				{return m_valid;}
+
+			constexpr const char* nameGet() const noexcept
+				{return r_name;}
+
+			constexpr const char* typeGet() const noexcept
+				{return r_type_name;}
 
 		protected:
 			void groupHeaderPrint() const noexcept;

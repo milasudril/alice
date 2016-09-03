@@ -3,6 +3,7 @@
 #ifndef ALICE_TYPEINFO_HPP
 #define ALICE_TYPEINFO_HPP
 
+#include "stringkey.hpp"
 #include <string>
 
 namespace Alice
@@ -12,8 +13,15 @@ namespace Alice
 		{
 		};
 
+	template<Stringkey::HashValue key>
+	struct MakeType
+		{};
+
 	template<class Type>
 	Type make_value(const std::string& x);
+
+
+
 
 	template<>
 	class Typeinfo<long long int>
@@ -30,6 +38,15 @@ namespace Alice
 		{return std::stoll(x);}
 
 	template<>
+	struct MakeType<Stringkey("Integer")>
+		{
+		public:
+			typedef long long int Type;
+		};
+
+
+
+	template<>
 	class Typeinfo<double>
 		{
 		public:
@@ -42,6 +59,15 @@ namespace Alice
 	template<>
 	double make_value<double>(const std::string& x)
 		{return std::stod(x);}
+
+	template<>
+	struct MakeType<Stringkey("Double")>
+		{
+		public:
+			typedef double Type;
+		};
+
+
 
 	template<>
 	class Typeinfo<std::string>
@@ -59,6 +85,13 @@ namespace Alice
 	template<>
 	std::string make_value<std::string>(const std::string& x)
 		{return x;}
+
+	template<>
+	struct MakeType<Stringkey("String")>
+		{
+		public:
+			typedef std::string Type;
+		};
 	}
 
 #endif
