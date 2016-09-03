@@ -1,23 +1,20 @@
 //@	{"targets":[{"name":"test2","type":"application"}]}
 
-#include "optionmap2.hpp"
-
-#include "typeinfo.hpp"
-#include "optionbase.hpp"
+#include "optionmap.hpp"
 
 using namespace Alice;
 
 struct OptionDescriptor
 	{
-	static constexpr const OptionBase options[]=
+	static constexpr const Option options[]=
 		{
-			 {"General","help","Prints this message and exits","String",OptionBase::Multiplicity::ZERO_OR_ONE}
-			,{"General","a-number","A number","Double",OptionBase::Multiplicity::ONE}
+			 {"General","help","Prints this message and exits","String",Option::Multiplicity::ZERO_OR_ONE}
+			,{"General","a-number","A number","Double",Option::Multiplicity::ONE}
 		};
 	static constexpr size_t size=2;
 	};
 
-constexpr const OptionBase OptionDescriptor::options[];
+constexpr const Option OptionDescriptor::options[];
 
 int main()
 	{

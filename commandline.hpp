@@ -9,17 +9,16 @@
 #include "option.hpp"
 #include "optionruntime.hpp"
 #include <set>
-#include <array>
+#include <map>
 
 namespace Alice
 	{
-	template<class ... entries>
+	template<class OptionDescriptor>
 	class CommandLine
 		{
 		public:
 			template<class ErrorHandler>
-			CommandLine(const std::array<OptionBase,sizeof...(entries)>& descriptions,int argc
-				,const char* const* argv,ErrorHandler&& eh);
+			CommandLine(int argc,const char* const* argv,ErrorHandler&& eh);
 
 			template<Stringkey::HashValue key>
 			auto get() const noexcept
@@ -33,9 +32,10 @@ namespace Alice
 				{
 				printf("{");
 				auto N=m_entries.size();
-				m_entries.itemsEnum([N](const auto& x,size_t index,Stringkey::HashValue key)
+				m_entries.itemsEnum([N](size_t index,Stringkey::HashValue key,const auto& x
+					,const typename OptionMap<OptionDescriptor>::Paraminfo& paraminfo)
 					{
-					x.valuesPrint();
+				//	x.valuesPrint();
 					if(index + 1!=N)
 						{printf(",");}
 					});
@@ -49,28 +49,24 @@ namespace Alice
 				Stringkey key_prev("");
 				
 				m_entries.itemsEnum([&key_prev,headers_print]
-					(const auto& x,size_t index,Stringkey::HashValue key)
+					(size_t index,Stringkey::HashValue key,const auto& x
+					,const typename OptionMap<OptionDescriptor>::Paraminfo& paraminfo)
 					{
-					auto group_next=Stringkey(x.groupGet());
-					x.helpPrint(group_next!=key_prev && headers_print);
+					auto group_next=Stringkey(paraminfo.group);
+				//	paraminfo.print(group_next!=key_prev && headers_print);
+				//	x.helpPrint(group_next!=key_prev && headers_print);
 					key_prev=group_next;
 					});
 				}
 
 		private:
-			OptionMap<entries...> m_entries;
+			OptionMap<OptionDescriptor> m_entries;
 		};
 
-	template<class ... entries>
+	template<class OptionDescriptor>
 	template<class ErrorHandler>
-	CommandLine<entries...>::CommandLine(const std::array<OptionBase,sizeof...(entries)>& descriptions
-		,int argc,const char* const* argv,ErrorHandler&& eh)
+	CommandLine<OptionDescriptor>::CommandLine(int argc,const char* const* argv,ErrorHandler&& eh)
 		{
-		m_entries.itemsEnum([&descriptions](auto& x,size_t index,Stringkey::HashValue key)
-			{
-			x=static_cast<typename std::remove_reference<decltype(x)>::type>( descriptions[index] );
-			});
-
 		std::set<Stringkey::HashValue> keys;
 		auto key=m_entries.keysBegin();
 		auto keys_end=m_entries.keysEnd();
@@ -99,12 +95,14 @@ namespace Alice
 			--argc;
 			}
 
-		m_entries.itemsEnum([&options,&eh](auto& x,size_t index,Stringkey::HashValue key)
+		m_entries.itemsEnum([&options,&eh](size_t index,Stringkey::HashValue key,auto& x
+			,const typename OptionMap<OptionDescriptor>::Paraminfo& paraminfo)
 			{
 			auto i=options.find(key);
 			if(i!=options.end())
 				{
-				x.valuesSet(i->second);
+			//	Switch on multiplicity
+			//	x.valueSet(make_value(i->second));
 				}
 			});
 		}

@@ -1,11 +1,11 @@
-//@	{"targets":[{"name":"optionbase.o","type":"object"}]}
+//@	{"targets":[{"name":"option.o","type":"object"}]}
 
-#include "optionbase.hpp"
+#include "option.hpp"
 #include <cstdio>
 
 using namespace Alice;
 
-void OptionBase::helpPrint(bool group_header) const noexcept
+void Option::helpPrint(bool group_header) const noexcept
 	{
 	if(group_header)
 		{groupHeaderPrint();}
@@ -29,7 +29,7 @@ void OptionBase::helpPrint(bool group_header) const noexcept
 	printf("\n    %s\n\n",r_description);
 	}
 
-void OptionBase::groupHeaderPrint() const noexcept
+void Option::groupHeaderPrint() const noexcept
 	{
 	printf("\n%s\n",r_group);
 	auto x=r_group;

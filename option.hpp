@@ -1,79 +1,70 @@
-//@	{"targets":[{"name":"option.hpp","type":"include"}]}
+//@	{
+//@	 "targets":[{"name":"option.hpp","type":"include"}]
+//@	,"dependencies_extra":[{"ref":"option.o","rel":"implementation"}]
+//@	}
 
 #ifndef ALICE_OPTION_HPP
 #define ALICE_OPTION_HPP
 
-#include "optionbase.hpp"
-#include "typeinfo.hpp"
-#include "optionruntime.hpp"
-
 #include <cstddef>
-#include <vector>
-#include <cstdio>
 
 namespace Alice
 	{
-	template<class Type>
-	class Option:public OptionBase
+	class Option
 		{
 		public:
-			constexpr Option():OptionBase(){}
+			enum class Multiplicity:size_t
+				{ZERO_OR_ONE,ZERO_OR_MORE,ONE,ONE_OR_MORE};
+
+			constexpr Option():r_group(""),r_name("")
+				,r_description(""),r_type_name("")
+				,m_mult(Multiplicity::ZERO_OR_MORE){}
 
 			constexpr Option(const char* group
 				,const char* name,const char* description
-				,Multiplicity mult):
-				OptionBase(group,name,description,Typeinfo<Type>::name
-					,mult)
+				,const char* type_name
+				,Multiplicity mult):r_group(group),r_name(name)
+				,r_description(description),r_type_name(type_name),m_mult(mult)
 				{}
 
-			constexpr explicit Option(const OptionBase& opt):OptionBase(opt)
-				{r_type_name=Typeinfo<Type>::name;}
+			void helpPrint(bool group_header=0) const noexcept;
 
-			const Type* valuesBegin() const noexcept
-				{return values.data();}
+			constexpr const char* groupGet() const noexcept
+				{return r_group;}
 
-			const Type* valuesEnd() const noexcept
-				{return values.data() + values.size();}
+			bool emptyAllowed() const noexcept
+				{
+				return m_mult==Multiplicity::ZERO_OR_ONE 
+					|| m_mult==Multiplicity::ZERO_OR_MORE;
+				}
 
-			void valuesPrint() const noexcept;
+			bool manyAllowed() const noexcept
+				{
+				return m_mult==Multiplicity::ZERO_OR_MORE
+					|| m_mult==Multiplicity::ONE_OR_MORE;
+				}
 
-			void valuesSet(const OptionRuntime& option);
+			constexpr Multiplicity multiplicityGet() const noexcept
+				{return m_mult;}
 
-			size_t valuesCount() const noexcept
-				{return values.size();}
+			constexpr const char* nameGet() const noexcept
+				{return r_name;}
 
-		private:
-			std::vector<Type> values;
+			constexpr const char* typeGet() const noexcept
+				{return r_type_name;}
+
+			constexpr const char* descriptionGet() const noexcept
+				{return r_description;}
+
+		protected:
+			void groupHeaderPrint() const noexcept;
+
+			const char* r_group;
+			const char* r_name;
+			const char* r_description;
+			const char* r_type_name;
+			Multiplicity m_mult;
 		};
-
-	template<class Type>
-	void Option<Type>::valuesPrint() const noexcept
-		{
-		printf("\"%s\":[",r_name);
-		auto pos=valuesBegin();
-		auto pos_end=valuesEnd();
-		while(pos!=pos_end)
-			{
-			print(*pos);
-			++pos;
-			if(pos!=pos_end)
-				{putchar(',');}
-			}
-		printf("]\n");
-		}
-
-	template<class Type>
-	void Option<Type>::valuesSet(const OptionRuntime& option)
-		{
-		m_valid=1;
-		auto pos=option.valuesBegin();
-		auto pos_end=option.valuesEnd();
-		while(pos!=pos_end)
-			{
-			values.push_back(make_value<Type>(*pos));
-			++pos;
-			}
-		}
 	}
 
 #endif
