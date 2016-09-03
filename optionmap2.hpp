@@ -5,8 +5,10 @@
 
 #include "stringkey.hpp"
 #include "typeinfo.hpp"
+#include "optionbase.hpp"
 
 #include <cstddef>
+#include <vector>
 
 namespace Alice
 	{
@@ -14,6 +16,14 @@ namespace Alice
 	class OptionMap
 		{
 		public:
+			struct Paraminfo
+				{
+				const char* group;
+				const char* description;
+				};
+
+			OptionMap():m_info(make_info())
+				{}
 
 			template<Stringkey::HashValue key>
 			const auto& get() const noexcept
@@ -22,6 +32,32 @@ namespace Alice
 			template<Stringkey::HashValue key>
 			auto& get() noexcept
 				{return get< Find<key>::index >(m_data);}
+
+			template<size_t index>
+			auto getByIndex() const noexcept
+				{return get<index>(m_data);}
+
+			template<size_t index>
+			auto& getByIndex() noexcept
+				{return get<index>(m_data);}
+
+			static constexpr size_t size() noexcept
+				{return s_keys.size();}
+
+			template<class Callback>
+			void itemsEnum(Callback&& cb) const
+				{itemsEnumImpl(cb);}
+
+			template<class Callback>
+			void itemsEnum(Callback&& cb)
+				{itemsEnumImpl(cb);}
+
+			static const Stringkey* keysBegin() noexcept
+				{return s_keys;}
+
+			static const Stringkey* keysEnd() noexcept
+				{return s_keys + size();}
+
 
 		private:
 			template<class T,size_t N>
@@ -40,12 +76,66 @@ namespace Alice
 				return ret;
 				}
 
+			static constexpr Array<Paraminfo,OptionDescriptor::size> make_info()
+				{
+				Array<Paraminfo,OptionDescriptor::size> ret{};
+				for(decltype(ret.size()) k=0;k<ret.size();++k)
+					{
+					ret.data[k]=
+						{
+						 OptionDescriptor::options[k].groupGet()
+						,OptionDescriptor::options[k].descriptionGet()
+						};
+					}
+				return ret;
+				}
+
 			static constexpr Array<Stringkey,OptionDescriptor::size> s_keys=make_keys();
+
+			template<class T,OptionBase::Multiplicity multiplicity>
+			struct MultiplicitySelector
+				{};
+
+			template<class T>
+			struct MultiplicitySelector<T,OptionBase::Multiplicity::ONE>
+				{typedef T Type;};
+
+			template<class T>
+			struct MultiplicitySelector<T,OptionBase::Multiplicity::ZERO_OR_MORE>
+				{typedef std::vector<T> Type;};
+
+			template<class T>
+			struct MultiplicitySelector<T,OptionBase::Multiplicity::ONE_OR_MORE>:
+				public MultiplicitySelector<T,OptionBase::Multiplicity::ZERO_OR_MORE>
+				{};
+
+			template<class T>
+			struct MultiplicitySelector<T,OptionBase::Multiplicity::ZERO_OR_ONE>:
+				public MultiplicitySelector<T,OptionBase::Multiplicity::ZERO_OR_MORE>
+				{};
+
 
 			template<size_t k=OptionDescriptor::size,bool dummy=true>
 			struct Content:public Content<k-1>
 				{
-				typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type value;
+				public:
+					typedef typename MultiplicitySelector<
+						 typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type
+						,OptionDescriptor::options[k-1].multiplicityGet()>::Type ValueType;
+
+					const ValueType& valueGet() const noexcept
+						{return m_data.first;}
+
+					void valueSet(ValueType&& value) noexcept
+						{
+						m_data.first=std::move(value);
+						m_data.second=1;
+						}	
+
+					operator bool() const noexcept
+						{return m_data.second;}
+				private:
+					std::pair<ValueType,bool> m_data;
 				};
 
 			template<bool dummy>
@@ -53,14 +143,16 @@ namespace Alice
 				{};
 
 			Content<OptionDescriptor::size> m_data;
+			Array<Paraminfo,OptionDescriptor::size> m_info;
+
 
 			template<size_t k>
 			const auto& get(const Content<k+1>& vals) noexcept
-				{return vals.value;}
+				{return vals;}
 
 			template<size_t k>
 			auto& get(Content<k+1>& vals) noexcept
-				{return vals.value;}
+				{return vals;}
 
 			template<Stringkey::HashValue key,size_t N=s_keys.size(),bool found=false>
 			struct Find
@@ -81,9 +173,33 @@ namespace Alice
 				static constexpr size_t index=N;
 				typedef size_t IndexType;
 				};
+
+			template<size_t index=0,class Callback>
+			typename std::enable_if<index!=size(),void>::type
+			itemsEnumImpl(Callback& cb)
+				{
+				cb(index,s_keys[index],getByIndex<index>(),m_info[index]);
+				itemsEnumImpl<index+1,Callback>(cb);
+				}
+
+			template<size_t index=0,class Callback>
+			typename std::enable_if<index!=size(),void>::type
+			itemsEnumImpl(Callback& cb) const
+				{
+				cb(index,s_keys[index],getByIndex<index>(),m_info[index]);
+				itemsEnumImpl<index+1,Callback>(cb);
+				}
+
+
+			template<size_t index,class Callback>
+			typename std::enable_if<index==size(),void>::type
+			itemsEnumImpl(Callback& cb) const noexcept
+				{}	
 		};
 
-
+	template<class OptionDescriptor>
+	constexpr const typename OptionMap<OptionDescriptor>::
+		template Array<Stringkey,OptionDescriptor::size> OptionMap<OptionDescriptor>::s_keys;
 	}
 
 #endif

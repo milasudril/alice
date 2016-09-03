@@ -12,18 +12,26 @@ struct OptionDescriptor
 	static constexpr const OptionBase options[]=
 		{
 			 {"General","help","Prints this message and exits","String",OptionBase::Multiplicity::ZERO_OR_ONE}
-			,{"General","a-number","A number","Double",OptionBase::Multiplicity::ZERO_OR_ONE}
+			,{"General","a-number","A number","Double",OptionBase::Multiplicity::ONE}
 		};
 	static constexpr size_t size=2;
 	};
+
+constexpr const OptionBase OptionDescriptor::options[];
 
 int main()
 	{
 	OptionMap<OptionDescriptor> test;
 
-	test.get<Stringkey("help")>()="Hello";
-	test.get<Stringkey("a-number")>()=3.14;
-	test.get<Stringkey("bad-key")>()="Error";
+	if(!test.get<Stringkey("help")>())
+		{printf("Not set\n");}
+
+	test.get<Stringkey("help")>().valueSet(std::vector<std::string>{"Hello"});
+	if(test.get<Stringkey("help")>())
+		{printf("Value set\n");}
+
+	test.get<Stringkey("a-number")>().valueSet(3.14);
+//	test.get<Stringkey("bad-key")>()="Error";
 
 	return 0;
 	}

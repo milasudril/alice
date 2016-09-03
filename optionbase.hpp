@@ -50,6 +50,9 @@ namespace Alice
 					|| m_mult==Multiplicity::ONE_OR_MORE;
 				}
 
+			constexpr Multiplicity multiplicityGet() const noexcept
+				{return m_mult;}
+
 			bool validIs() const
 				{return m_valid;}
 
@@ -58,6 +61,9 @@ namespace Alice
 
 			constexpr const char* typeGet() const noexcept
 				{return r_type_name;}
+
+			constexpr const char* descriptionGet() const noexcept
+				{return r_description;}
 
 		protected:
 			void groupHeaderPrint() const noexcept;
