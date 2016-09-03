@@ -14,6 +14,8 @@ namespace Alice
 		public:
 			typedef uint64_t HashValue;
 
+			explicit constexpr Stringkey():m_value(0){}
+
 			explicit constexpr Stringkey(const char* str) noexcept:
 				m_value(hash(str))
 				{}
