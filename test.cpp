@@ -5,7 +5,7 @@
 ALICE_OPTION_DESCRIPTOR(OptionDescriptor
 	,{"General","help","Print usage information","String",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-a","Perform stuff A","String",Alice::Option::Multiplicity::ZERO_OR_ONE}
-	,{"Zero or one","do-stuff-b","Perform stuff B","Integer",Alice::Option::Multiplicity::ZERO_OR_ONE}
+	,{"Zero or one","do-stuff-b","Perform stuff B","Integer",Alice::Option::Multiplicity::ZERO_OR_MORE}
 	,{"Zero or one","do-stuff-c","Perform stuff C","Double",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or more","do-stuff-d","Perform stuff D","String",Alice::Option::Multiplicity::ZERO_OR_MORE}
 	,{"One","do-stuff-e","Perform stuff E","String",Alice::Option::Multiplicity::ONE}
@@ -29,6 +29,14 @@ int main(int argc,char** argv)
 	//	This causes compilation error [no key bad-option in the OptionDescriptor]
 	//	auto& x=cmd_line.get<Alice::Stringkey("bad-option")>();
 
+		auto& x=cmd_line.get<Alice::Stringkey("do-stuff-e")>().valueGet();
+		printf("%s\n",x.c_str());
+
+		for(auto&& y: cmd_line.get<Alice::Stringkey("do-stuff-b")>().valueGet())
+			{
+			printf("%lld ",y);
+			}
+		putchar('\n');
 
 		cmd_line.print(stdout);
 
