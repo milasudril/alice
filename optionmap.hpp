@@ -3,9 +3,9 @@
 #ifndef ALICE_OPTIONMAP_HPP
 #define ALICE_OPTIONMAP_HPP
 
-#include "stringkey.hpp"
 #include "typeinfo.hpp"
 #include "option.hpp"
+#include "array.hpp"
 
 #include <cstddef>
 #include <vector>
@@ -16,15 +16,6 @@ namespace Alice
 	class OptionMap
 		{
 		public:
-			struct Paraminfo
-				{
-				const char* group;
-				const char* description;
-				};
-
-			OptionMap():m_info(make_info())
-				{}
-
 			template<Stringkey::HashValue key>
 			const auto& get() const noexcept
 				{return get< Find<key>::index >(m_data);}
@@ -60,37 +51,15 @@ namespace Alice
 
 
 		private:
-			template<class T,size_t N>
-			struct Array
+			static constexpr Array<Stringkey,countof(OptionDescriptor::options)> make_keys()
 				{
-				T data[N];
-				static constexpr size_t size() noexcept
-					{return N;}
-				};
-
-			static constexpr Array<Stringkey,OptionDescriptor::size> make_keys()
-				{
-				Array<Stringkey,OptionDescriptor::size> ret{};
+				Array<Stringkey,countof(OptionDescriptor::options)> ret{};
 				for(decltype(ret.size()) k=0;k<ret.size();++k)
 					{ret.data[k]=Alice::Stringkey(OptionDescriptor::options[k].nameGet());}
 				return ret;
 				}
 
-			static constexpr Array<Paraminfo,OptionDescriptor::size> make_info()
-				{
-				Array<Paraminfo,OptionDescriptor::size> ret{};
-				for(decltype(ret.size()) k=0;k<ret.size();++k)
-					{
-					ret.data[k]=
-						{
-						 OptionDescriptor::options[k].groupGet()
-						,OptionDescriptor::options[k].descriptionGet()
-						};
-					}
-				return ret;
-				}
-
-			static constexpr Array<Stringkey,OptionDescriptor::size> s_keys=make_keys();
+			static constexpr Array<Stringkey,countof(OptionDescriptor::options)> s_keys=make_keys();
 
 			template<class T,Option::Multiplicity multiplicity>
 			struct MultiplicitySelector
@@ -98,11 +67,17 @@ namespace Alice
 
 			template<class T>
 			struct MultiplicitySelector<T,Option::Multiplicity::ONE>
-				{typedef T Type;};
+				{
+				typedef T Type;
+				static constexpr bool multi=0;
+				};
 
 			template<class T>
 			struct MultiplicitySelector<T,Option::Multiplicity::ZERO_OR_MORE>
-				{typedef std::vector<T> Type;};
+				{
+				typedef std::vector<T> Type;
+				static constexpr bool multi=1;
+				};
 
 			template<class T>
 			struct MultiplicitySelector<T,Option::Multiplicity::ONE_OR_MORE>:
@@ -114,14 +89,17 @@ namespace Alice
 				public MultiplicitySelector<T,Option::Multiplicity::ZERO_OR_MORE>
 				{};
 
-
-			template<size_t k=OptionDescriptor::size,bool dummy=true>
+			template<size_t k=countof(OptionDescriptor::options),bool dummy=true>
 			struct Content:public Content<k-1>
 				{
 				public:
 					typedef typename MultiplicitySelector<
 						 typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type
 						,OptionDescriptor::options[k-1].multiplicityGet()>::Type ValueType;
+
+					static constexpr bool multi=MultiplicitySelector<
+						 typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type
+						,OptionDescriptor::options[k-1].multiplicityGet()>::multi;
 
 					const ValueType& valueGet() const noexcept
 						{return m_data.first;}
@@ -134,6 +112,7 @@ namespace Alice
 
 					operator bool() const noexcept
 						{return m_data.second;}
+
 				private:
 					std::pair<ValueType,bool> m_data;
 				};
@@ -142,9 +121,7 @@ namespace Alice
 			struct Content<0,dummy>
 				{};
 
-			Content<OptionDescriptor::size> m_data;
-			Array<Paraminfo,OptionDescriptor::size> m_info;
-
+			Content<countof(OptionDescriptor::options)> m_data;
 
 			template<size_t k>
 			const auto& get(const Content<k+1>& vals) const noexcept
@@ -178,7 +155,7 @@ namespace Alice
 			typename std::enable_if<index!=size(),void>::type
 			itemsEnumImpl(Callback& cb)
 				{
-				cb(index,s_keys.data[index],getByIndex<index>(),m_info.data[index]);
+				cb(index,s_keys.data[index],getByIndex<index>());
 				itemsEnumImpl<index+1,Callback>(cb);
 				}
 
@@ -186,7 +163,7 @@ namespace Alice
 			typename std::enable_if<index!=size(),void>::type
 			itemsEnumImpl(Callback& cb) const
 				{
-				cb(index,s_keys.data[index],getByIndex<index>(),m_info.data[index]);
+				cb(index,s_keys.data[index],getByIndex<index>());
 				itemsEnumImpl<index+1,Callback>(cb);
 				}
 
@@ -198,8 +175,7 @@ namespace Alice
 		};
 
 	template<class OptionDescriptor>
-	constexpr const typename OptionMap<OptionDescriptor>::
-		template Array<Stringkey,OptionDescriptor::size> OptionMap<OptionDescriptor>::s_keys;
+	constexpr const Array<Stringkey,countof(OptionDescriptor::options)> OptionMap<OptionDescriptor>::s_keys;
 	}
 
 #endif

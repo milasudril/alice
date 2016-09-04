@@ -5,6 +5,7 @@
 
 #include "stringkey.hpp"
 #include <string>
+#include <vector>
 
 namespace Alice
 	{
@@ -20,9 +21,6 @@ namespace Alice
 	template<class Type>
 	Type make_value(const std::string& x);
 
-
-
-
 	template<>
 	class Typeinfo<long long int>
 		{
@@ -30,12 +28,14 @@ namespace Alice
 			static constexpr const char* name="Integer";
 		};
 
-	void print(long long int x)
-		{printf("%lld",x);}
+	void print(long long int x,FILE* dest)
+		{fprintf(dest,"%lld",x);}
 
 	template<>
 	long long int make_value<long long int>(const std::string& x)
 		{return std::stoll(x);}
+
+
 
 	template<>
 	struct MakeType<Stringkey("Integer")>
@@ -53,8 +53,8 @@ namespace Alice
 			static constexpr const char* name="Double";
 		};
 
-	void print(double x)
-		{printf("%.16e",x);}
+	void print(double x,FILE* dest)
+		{fprintf(dest,"%.16e",x);}
 
 	template<>
 	double make_value<double>(const std::string& x)
@@ -76,10 +76,10 @@ namespace Alice
 			static constexpr const char* name="String";
 		};
 
-	void print(const std::string& x)
+	void print(const std::string& x,FILE* dest)
 		{
 	//TODO: Escape JSON string!
-		printf("\"%s\"",x.c_str());
+		fprintf(dest,"\"%s\"",x.c_str());
 		}
 	
 	template<>
@@ -92,6 +92,60 @@ namespace Alice
 		public:
 			typedef std::string Type;
 		};
+
+	template<class T>
+	void print(const std::vector<T>& values,FILE* dest)
+		{
+		auto ptr=values.data();
+		auto ptr_end=ptr+values.size();
+		fprintf(dest,"[");
+		if(ptr!=ptr_end)
+			{
+			print(*ptr,dest);
+			++ptr;
+			}
+		while(ptr!=ptr_end)
+			{
+			fprintf(dest,",");
+			print(*ptr,dest);
+			++ptr;
+			}
+		fprintf(dest,"]");
+		}
+
+	template<class Type,bool multi>
+	struct MakeValueHelper
+		{};
+
+	template<class Type>
+	struct MakeValueHelper<Type,0>
+		{
+		static Type make_value(const std::vector<std::string>& x)
+			{return Alice::make_value<Type>(x[0]);}
+		};
+
+	template<class Type>
+	struct MakeValueHelper<Type,1>
+		{
+		static Type make_value(const std::vector<std::string>& x)
+			{
+			Type ret;
+			auto ptr=x.data();
+			auto ptr_end=ptr+x.size();
+			while(ptr!=ptr_end)
+				{
+				ret.push_back(Alice::make_value<typename Type::value_type>(*ptr));
+				++ptr;
+				}
+			return std::move(ret);
+			}
+		};
+
+	template<class Type,bool multi>
+	auto make_value(const std::vector<std::string>& x)
+		{
+		return MakeValueHelper<Type,multi>::make_value(x);
+		}
 	}
 
 #endif

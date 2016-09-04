@@ -7,6 +7,7 @@
 #define ALICE_OPTION_HPP
 
 #include <cstddef>
+#include <cstdio>
 
 namespace Alice
 	{
@@ -27,7 +28,7 @@ namespace Alice
 				,r_description(description),r_type_name(type_name),m_mult(mult)
 				{}
 
-			void helpPrint(bool group_header=0) const noexcept;
+			void help(bool group_header=0,FILE* dest=stdout) const noexcept;
 
 			constexpr const char* groupGet() const noexcept
 				{return r_group;}
@@ -57,7 +58,7 @@ namespace Alice
 				{return r_description;}
 
 		protected:
-			void groupHeaderPrint() const noexcept;
+			void groupHeaderPrint(FILE* dest) const noexcept;
 
 			const char* r_group;
 			const char* r_name;

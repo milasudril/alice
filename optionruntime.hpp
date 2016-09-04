@@ -9,30 +9,21 @@
 #include "stringkey.hpp"
 #include <string>
 #include <vector>
+#include <map>
 
 namespace Alice
 	{
-	class OptionRuntime
+	class CommandLineValidator
 		{
 		public:
-			OptionRuntime(const char* arg_value);
-
-			const std::vector<std::string>& valuesGet() const noexcept
-				{return m_values;}
-
-			const char* nameGet() const noexcept
-				{return m_name.c_str();}
-
-			const std::string* valuesBegin() const noexcept
-				{return m_values.data();}
-
-			const std::string* valuesEnd() const noexcept
-				{return m_values.data() + m_values.size();}
-
-		private:
-			std::string m_name;
-			std::vector<std::string> m_values;
+			virtual void keyValidate(const char* option_name,Stringkey::HashValue key)=0;
+			virtual void optionValidate(const char* option_name,Stringkey::HashValue key,size_t arg_count)=0;
+			virtual void syntaxError(char ch_good,char ch_bad)=0;
+			virtual void syntaxError(const char* description)=0;
 		};
+
+	std::map<Stringkey::HashValue,std::vector<std::string>> optionsLoad(int argc,const char* const* argv
+		,CommandLineValidator&& validator);
 	};
 
 #endif

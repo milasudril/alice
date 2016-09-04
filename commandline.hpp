@@ -6,10 +6,11 @@
 #define ALICE_COMMANDLINE_HPP
 
 #include "optionmap.hpp"
-#include "option.hpp"
 #include "optionruntime.hpp"
+#include "cmdlineerror.hpp"
 #include <set>
 #include <map>
+#include <cstdio>
 
 namespace Alice
 	{
@@ -17,8 +18,8 @@ namespace Alice
 	class CommandLine
 		{
 		public:
-			template<class ErrorHandler>
-			CommandLine(int argc,const char* const* argv,ErrorHandler&& eh);
+			template<class ErrorHandler=CmdLineError>
+			CommandLine(int argc,const char* const* argv);
 
 			template<Stringkey::HashValue key>
 			auto get() const noexcept
@@ -28,84 +29,143 @@ namespace Alice
 			auto& get() noexcept
 				{return m_entries.get<key>();}
 
-			void valuesPrint() const noexcept
+			void print(FILE* dest=stdout) const noexcept
 				{
-				printf("{");
+				fprintf(dest,"{");
 				auto N=m_entries.size();
-				m_entries.itemsEnum([N](size_t index,Stringkey::HashValue key,const auto& x
-					,const typename OptionMap<OptionDescriptor>::Paraminfo& paraminfo)
+				auto info=m_info.data;
+				m_entries.itemsEnum([N,dest,info]
+					(size_t index,Stringkey::HashValue key,const auto& x)
 					{
-				//	x.valuesPrint();
+					fprintf(dest,"\"%s\":",info[index].nameGet());
+					print(x.valueGet(),dest);
 					if(index + 1!=N)
-						{printf(",");}
+						{fprintf(dest,",");}
 					});
-				printf("}\n");
+				fprintf(dest,"}\n");
 				}
 
-			void helpPrint(bool headers_print=0) const noexcept
+			void help(bool headers_print=0,FILE* dest=stdout) const noexcept
 				{
 				printf("Command line options\n"
 				       "====================\n");
 				Stringkey key_prev("");
-				
-				m_entries.itemsEnum([&key_prev,headers_print]
-					(size_t index,Stringkey::HashValue key,const auto& x
-					,const typename OptionMap<OptionDescriptor>::Paraminfo& paraminfo)
+				auto info=m_info.data;
+				m_entries.itemsEnum([&key_prev,headers_print,info]
+					(size_t index,Stringkey::HashValue key,const auto& x)
 					{
-					auto group_next=Stringkey(paraminfo.group);
-				//	paraminfo.print(group_next!=key_prev && headers_print);
-				//	x.helpPrint(group_next!=key_prev && headers_print);
+					auto group_next=Stringkey(info[index].groupGet());
+					info[index].help(group_next!=key_prev && headers_print);
 					key_prev=group_next;
 					});
 				}
 
 		private:
 			OptionMap<OptionDescriptor> m_entries;
+			Array<Option,countof(OptionDescriptor::options)> m_info;
+
+			static constexpr Array<Option,countof(OptionDescriptor::options)> make_info()
+				{
+				Array<Option,countof(OptionDescriptor::options)> ret{};
+				for(decltype(ret.size()) k=0;k<ret.size();++k)
+					{ret.data[k]=OptionDescriptor::options[k];}
+				return ret;
+				}
+		};
+
+	template<class Map,class ErrorHandler>
+	class KeyChecker:public CommandLineValidator
+		{
+		public:
+			KeyChecker(Map&& map,ErrorHandler& eh)=delete;
+			KeyChecker(const Map& map,const Option* options,ErrorHandler& eh):
+				r_map(map),r_eh(eh)
+				{
+				std::set<Stringkey::HashValue> keys;
+				auto key=r_map.keysBegin();
+				auto keys_end=r_map.keysEnd();
+				while(key!=keys_end)
+					{
+					m_keys.insert({*key,options->multiplicityGet()});
+					++options;
+					++key;
+					}
+				}
+
+			void keyValidate(const char* option_name,Stringkey::HashValue key)
+				{
+				if(m_keys.find(key)==m_keys.end())
+					{r_eh.keyError(option_name);}
+				}
+
+			void optionValidate(const char* option_name,Stringkey::HashValue key,size_t arg_count)
+				{
+				auto mult=m_keys.find(key)->second;
+				switch(mult)
+					{
+					case Option::Multiplicity::ZERO_OR_ONE:
+						if(arg_count>1)
+							{r_eh.optionErrorArgsToMany(option_name,1);}
+						break;
+					case Option::Multiplicity::ONE:
+						if(arg_count>1)
+							{r_eh.optionErrorArgsToMany(option_name,1);}
+						if(arg_count<1)
+							{r_eh.optionErrorArgsToFew(option_name,1);}
+						break;
+					case Option::Multiplicity::ONE_OR_MORE:
+						if(arg_count<1)
+							{r_eh.optionErrorArgsToFew(option_name,1);}
+						break;
+					case Option::Multiplicity::ZERO_OR_MORE:
+						break;
+					}
+				}
+
+			void syntaxError(char ch_good,char ch_bad)
+				{r_eh.syntaxError(ch_good,ch_bad);}
+
+			void syntaxError(const char* description)
+				{r_eh.syntaxError(description);}
+
+		private:
+			const Map& r_map;
+			ErrorHandler& r_eh;
+			std::map<Stringkey::HashValue,Option::Multiplicity> m_keys;
 		};
 
 	template<class OptionDescriptor>
 	template<class ErrorHandler>
-	CommandLine<OptionDescriptor>::CommandLine(int argc,const char* const* argv,ErrorHandler&& eh)
+	CommandLine<OptionDescriptor>::CommandLine(int argc,const char* const* argv)
+		:m_info(make_info())
 		{
-		std::set<Stringkey::HashValue> keys;
-		auto key=m_entries.keysBegin();
-		auto keys_end=m_entries.keysEnd();
-		while(key!=keys_end)
-			{
-			keys.insert(*key);
-			++key;
-			}
-		if(argc!=0)
-			{
-			--argc;
-			++argv;
-			}
+		ErrorHandler eh;
+		if(argc==0)
+			{return;}
 
-		std::map<Stringkey::HashValue,OptionRuntime> options;
-		while(argc!=0)
+		--argc;
+		++argv;
+
+		auto options_loaded=optionsLoad(argc,argv
+			,KeyChecker< OptionMap<OptionDescriptor>,ErrorHandler >(m_entries,m_info.data,eh));
+
+		m_entries.itemsEnum([&options_loaded](size_t index,Stringkey::HashValue key,auto& x)
 			{
-			OptionRuntime option(*argv);
-			auto key=Stringkey(option.nameGet());
-
-			if(keys.find(key)==keys.end())
-				{eh.unknownOption(option.nameGet());}
-
-			options.insert({key,std::move(option)});
-			++argv;
-			--argc;
-			}
-
-		m_entries.itemsEnum([&options,&eh](size_t index,Stringkey::HashValue key,auto& x
-			,const typename OptionMap<OptionDescriptor>::Paraminfo& paraminfo)
-			{
-			auto i=options.find(key);
-			if(i!=options.end())
+			auto i=options_loaded.find(key);
+			if(i!=options_loaded.end())
 				{
-			//	Switch on multiplicity
-			//	x.valueSet(make_value(i->second));
+				typedef typename std::remove_reference<decltype(x)>::type X;
+				x.valueSet(make_value<typename X::ValueType,X::multi>(i->second));
 				}
 			});
 		}
 	};
+
+#define ALICE_OPTION_DESCRIPTOR(name,...)\
+	struct name \
+		{ \
+		static constexpr Alice::Option options[]={__VA_ARGS__}; \
+		}; \
+	constexpr const Alice::Option name::options[]
 
 #endif
