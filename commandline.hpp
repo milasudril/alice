@@ -47,15 +47,15 @@ namespace Alice
 
 			void help(bool headers_print=0,FILE* dest=stdout) const noexcept
 				{
-				printf("Command line options\n"
+				fprintf(dest,"Command line options\n"
 				       "====================\n");
 				Stringkey key_prev("");
 				auto info=m_info.data;
-				m_entries.itemsEnum([&key_prev,headers_print,info]
+				m_entries.itemsEnum([&key_prev,headers_print,info,dest]
 					(size_t index,Stringkey::HashValue key,const auto& x)
 					{
 					auto group_next=Stringkey(info[index].groupGet());
-					info[index].help(group_next!=key_prev && headers_print);
+					info[index].help(group_next!=key_prev && headers_print,dest);
 					key_prev=group_next;
 					});
 				}
