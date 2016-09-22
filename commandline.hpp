@@ -12,6 +12,17 @@
 #include <map>
 #include <cstdio>
 
+
+#define ALICE_OPTION_DESCRIPTOR(name,...)\
+	struct name \
+		{ \
+		static constexpr Alice::Option options[]={__VA_ARGS__}; \
+		}; \
+	constexpr const Alice::Option name::options[]
+
+#define ALICE_OPTION_GET(cmdline,key) \
+	(cmdline).get<Alice::Stringkey(key)>()
+
 namespace Alice
 	{
 	template<class OptionDescriptor>
@@ -160,12 +171,5 @@ namespace Alice
 			});
 		}
 	};
-
-#define ALICE_OPTION_DESCRIPTOR(name,...)\
-	struct name \
-		{ \
-		static constexpr Alice::Option options[]={__VA_ARGS__}; \
-		}; \
-	constexpr const Alice::Option name::options[]
 
 #endif

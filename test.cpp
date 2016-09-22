@@ -32,9 +32,13 @@ int main(int argc,char** argv)
 		auto& x=cmd_line.get<Alice::Stringkey("do-stuff-e")>().valueGet();
 		printf("%s\n",x.c_str());
 
-		for(auto&& y: cmd_line.get<Alice::Stringkey("do-stuff-b")>().valueGet())
+	//	Alternative syntax (for thouse who do not like pointy brackets
+		auto& y=ALICE_OPTION_GET(cmd_line,"do-stuff-e").valueGet();
+		printf("%s\n",y.c_str());
+
+		for(auto&& z: cmd_line.get<Alice::Stringkey("do-stuff-b")>().valueGet())
 			{
-			printf("%lld ",y);
+			printf("%lld ",z);
 			}
 		putchar('\n');
 

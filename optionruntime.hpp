@@ -18,7 +18,7 @@ namespace Alice
 		public:
 			virtual void keyValidate(const char* option_name,Stringkey::HashValue key)=0;
 			virtual void optionValidate(const char* option_name,Stringkey::HashValue key,size_t arg_count)=0;
-			virtual void syntaxError(char ch_good,char ch_bad)=0;
+			virtual void syntaxError(char ch_good,char ch_badcl)=0;
 			virtual void syntaxError(const char* description)=0;
 		};
 
