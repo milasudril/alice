@@ -33,7 +33,7 @@ namespace Alice
 			CommandLine(int argc,const char* const* argv);
 
 			template<Stringkey::HashValue key>
-			auto get() const noexcept
+			const auto& get() const noexcept
 				{return m_entries.get<key>();}
 
 			template<Stringkey::HashValue key>

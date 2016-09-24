@@ -25,7 +25,7 @@ namespace Alice
 				{return get< Find<key>::index >(m_data);}
 
 			template<size_t index>
-			auto getByIndex() const noexcept
+			const auto& getByIndex() const noexcept
 				{return get<index>(m_data);}
 
 			template<size_t index>
@@ -93,6 +93,8 @@ namespace Alice
 			struct Content:public Content<k-1>
 				{
 				public:
+					Content()=default;
+
 					typedef typename MultiplicitySelector<
 						 typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type
 						,OptionDescriptor::options[k-1].multiplicityGet()>::Type ValueType;
@@ -114,6 +116,7 @@ namespace Alice
 						{return m_data.second;}
 
 				private:
+					Content(const Content&)=delete;
 					std::pair<ValueType,bool> m_data;
 				};
 
