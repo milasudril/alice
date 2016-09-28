@@ -8,10 +8,14 @@ static void optionLoad(std::map<Stringkey::HashValue,std::vector<std::string>>& 
 	,const char* arg,CommandLineValidator& validator)
 	{
 	std::string buffer;
-	enum class State:unsigned int{START_0,START_1,KEY,VALUE,VALUE_ESCAPE};
+	enum class State:unsigned int
+		{
+		 START_0,START_1,KEY,VALUE,VALUE_ESCAPE
+		};
 	auto state=State::START_0;
 	std::vector<std::string>* val_current=nullptr;
 	std::string name;
+	size_t brackets=0;
 	Stringkey key("");
 	while(true)
 		{
@@ -77,12 +81,23 @@ static void optionLoad(std::map<Stringkey::HashValue,std::vector<std::string>>& 
 			case State::VALUE:
 				switch(ch_in)
 					{
+					case '[':
+						++brackets;
+						break;
+					case ']':
+						brackets=brackets==0?0:brackets-1;
+						break;
 					case '\\':
 						state=State::VALUE_ESCAPE;
 						break;
 					case ',':
-						val_current->push_back(buffer);
-						buffer.clear();
+						if(brackets==0)
+							{
+							val_current->push_back(buffer);
+							buffer.clear();
+							}
+						else
+							{buffer+=ch_in;}
 						break;
 					case '\0':
 						val_current->push_back(buffer);
@@ -94,9 +109,19 @@ static void optionLoad(std::map<Stringkey::HashValue,std::vector<std::string>>& 
 				break;
 
 			case State::VALUE_ESCAPE:
-				if(ch_in=='\0')
+				if(brackets==0)
 					{
-					validator.syntaxError("Command line error: Lonely escape character.");
+					if(ch_in=='\0')
+						{
+						validator.syntaxError("Command line error: Lonely escape character.");
+						}
+					buffer+=ch_in;
+					}
+				else
+					{
+					if(ch_in!='[' && ch_in!=']')
+						{buffer+='\\';}
+					buffer+=ch_in;
 					}
 				state=State::VALUE;
 				break;
