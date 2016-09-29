@@ -82,10 +82,14 @@ static void optionLoad(std::map<Stringkey::HashValue,std::vector<std::string>>& 
 				switch(ch_in)
 					{
 					case '[':
+						if(brackets!=0)
+							{buffer+=ch_in;}
 						++brackets;
 						break;
 					case ']':
 						brackets=brackets==0?0:brackets-1;
+						if(brackets!=0)
+							{buffer+=ch_in;}
 						break;
 					case '\\':
 						state=State::VALUE_ESCAPE;
