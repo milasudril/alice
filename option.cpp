@@ -10,7 +10,7 @@ void Option::help(bool group_header,FILE* dest) const noexcept
 	if(group_header)
 		{groupHeaderPrint(dest);}
 
-	printf("--%s",r_name);
+	fprintf(dest,"--%s",r_name);
 	switch(m_mult)
 		{
 		case Multiplicity::ZERO_OR_ONE:
@@ -26,17 +26,17 @@ void Option::help(bool group_header,FILE* dest) const noexcept
 			fprintf(dest,"=%s,...",r_type_name);
 			break;
 		}
-	printf("\n    %s\n\n",r_description);
+	fprintf(dest,"\n    %s\n\n",r_description);
 	}
 
 void Option::groupHeaderPrint(FILE* dest) const noexcept
 	{
-	printf("\n%s\n",r_group);
+	fprintf(dest,"\n%s\n",r_group);
 	auto x=r_group;
 	while(*x!='\0')
 		{
-		putchar('-');
+		putc('-',dest);
 		++x;
 		}
-	printf("\n\n");
+	fprintf(dest,"\n\n");
 	}

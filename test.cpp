@@ -27,7 +27,7 @@ int main(int argc,char** argv)
 			}
 
 	//	This causes compilation error [no key bad-option in the OptionDescriptor]
-	//	auto& x=cmd_line.get<Alice::Stringkey("bad-option")>();
+	//	auto& a=cmd_line.get<Alice::Stringkey("bad-option")>();
 
 		auto& x=cmd_line.get<Alice::Stringkey("do-stuff-e")>().valueGet();
 		printf("%s\n",x.c_str());
