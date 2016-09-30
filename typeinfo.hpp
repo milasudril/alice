@@ -21,6 +21,9 @@ namespace Alice
 	template<class Type>
 	Type make_value(const std::string& x);
 
+
+
+
 	template<>
 	class Typeinfo<long long int>
 		{
@@ -28,21 +31,45 @@ namespace Alice
 			static constexpr const char* name="Integer";
 		};
 
-	void print(long long int x,FILE* dest)
-		{fprintf(dest,"%lld",x);}
-
-	template<>
-	long long int make_value<long long int>(const std::string& x)
-		{return std::stoll(x);}
-
-
-
 	template<>
 	struct MakeType<Stringkey("Integer")>
 		{
 		public:
 			typedef long long int Type;
 		};
+
+	inline void print(long long int x,FILE* dest)
+		{fprintf(dest,"%lld",x);}
+
+	template<>
+	inline long long int make_value<long long int>(const std::string& x)
+		{return std::stoll(x);}
+
+
+
+
+	template<>
+	struct MakeType<Stringkey("Short integer")>
+		{
+		public:
+			typedef int Type;
+		};
+
+	template<>
+	class Typeinfo<int>
+		{
+		public:
+			static constexpr const char* name="Short integer";
+		};
+
+	inline void print(int x,FILE* dest)
+		{fprintf(dest,"%d",x);}
+
+	template<>
+	inline int make_value<int>(const std::string& x)
+		{return std::stoi(x);}
+
+
 
 
 
@@ -53,11 +80,11 @@ namespace Alice
 			static constexpr const char* name="Double";
 		};
 
-	void print(double x,FILE* dest)
+	inline void print(double x,FILE* dest)
 		{fprintf(dest,"%.16e",x);}
 
 	template<>
-	double make_value<double>(const std::string& x)
+	inline double make_value<double>(const std::string& x)
 		{return std::stod(x);}
 
 	template<>
@@ -76,14 +103,14 @@ namespace Alice
 			static constexpr const char* name="String";
 		};
 
-	void print(const std::string& x,FILE* dest)
+	inline void print(const std::string& x,FILE* dest)
 		{
 	//TODO: Escape JSON string!
 		fprintf(dest,"\"%s\"",x.c_str());
 		}
 	
 	template<>
-	std::string make_value<std::string>(const std::string& x)
+	inline std::string make_value<std::string>(const std::string& x)
 		{return x;}
 
 	template<>
@@ -94,7 +121,7 @@ namespace Alice
 		};
 
 	template<class T>
-	void print(const std::vector<T>& values,FILE* dest)
+	inline void print(const std::vector<T>& values,FILE* dest)
 		{
 		auto ptr=values.data();
 		auto ptr_end=ptr+values.size();
@@ -142,7 +169,7 @@ namespace Alice
 		};
 
 	template<class Type,bool multi>
-	auto make_value(const std::vector<std::string>& x)
+	inline auto make_value(const std::vector<std::string>& x)
 		{
 		return MakeValueHelper<Type,multi>::make_value(x);
 		}
