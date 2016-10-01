@@ -166,7 +166,7 @@ namespace Alice
 			if(i!=options_loaded.end())
 				{
 				typedef typename std::remove_reference<decltype(x)>::type X;
-				x.valueSet(make_value<typename X::ValueType,X::multi>(i->second));
+				x.valueSet(make_value<typename X::ValueType,ErrorHandler,X::multi>(i->second));
 				}
 			});
 		}
