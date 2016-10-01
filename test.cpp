@@ -6,12 +6,12 @@ ALICE_OPTION_DESCRIPTOR(OptionDescriptor
 	,{"General","help","Print usage information","string",Alice::Option::Multiplicity::ZERO_OR_ONE}
 
 	,{"Zero or one","do-stuff-a","Perform stuff A","bool",Alice::Option::Multiplicity::ZERO_OR_ONE}
-	,{"Zero or one","do-stuff-b","Perform stuff B","char",Alice::Option::Multiplicity::ZERO_OR_ONE}
+	,{"Zero or one","do-stuff-b","Perform stuff B","byte",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-c","Perform stuff C","short",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-d","Perform stuff D","int",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-e","Perform stuff E","long",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-f","Perform stuff F","long long",Alice::Option::Multiplicity::ZERO_OR_ONE}
-	,{"Zero or one","do-stuff-g","Perform stuff G","unsigned char",Alice::Option::Multiplicity::ZERO_OR_ONE}
+	,{"Zero or one","do-stuff-g","Perform stuff G","unsigned byte",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-h","Perform stuff H","unsigned short",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-i","Perform stuff I","unsigned int",Alice::Option::Multiplicity::ZERO_OR_ONE}
 	,{"Zero or one","do-stuff-j","Perform stuff J","unsigned long",Alice::Option::Multiplicity::ZERO_OR_ONE}

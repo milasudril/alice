@@ -7,6 +7,10 @@
 #include "narrow_cast.hpp"
 #include <string>
 #include <vector>
+#include <climits>
+
+#define STR(x) #x
+#define STRING(x) STR(x)
 
 namespace Alice
 	{
@@ -64,7 +68,14 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("bool")>
-		{typedef bool Type;};
+		{
+		typedef bool Type;
+		static constexpr const char* description=
+			"can be true, false, yes, or no. "
+			"`true` is equivalent to `yes` and `false` is equivalent to no. "
+			"It is also possible to use a number. In this case, any non-zero value is "
+			"`true` and zero is `false`.";
+		};
 
 	inline void print(bool x,FILE* dest)
 		{fprintf(dest,"%s",x?"true":"false");}
@@ -78,7 +89,7 @@ namespace Alice
 				{return 1;}
 			if(x=="false" || x=="no")
 				{return 0;}
-			return std::stoi(x);
+			return toUint<ErrorHandler>(x);
 			}
 		};
 
@@ -90,8 +101,12 @@ namespace Alice
 //#	ever used.
 
 	template<>
-	struct MakeType<Stringkey("char")>
-		{typedef char Type;};
+	struct MakeType<Stringkey("byte")>
+		{
+		typedef char Type;
+		static constexpr const char* description=
+			"An integer in the range [" STRING(SCHAR_MIN) ", " STRING(SCHAR_MAX) "]";
+		};
 
 	inline void print(char x,FILE* dest)
 		{fprintf(dest,"%d",x);}
@@ -106,7 +121,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("short")>
-		{typedef short Type;};
+		{
+		typedef short Type;
+		static constexpr const char* description=
+			"An integer in the range [" STRING(SHRT_MIN) ", " STRING(SHRT_MAX) "]";
+		};
 
 	inline void print(short x,FILE* dest)
 		{fprintf(dest,"%d",x);}
@@ -121,7 +140,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("int")>
-		{typedef int Type;};
+		{
+		typedef int Type;
+		static constexpr const char* description=
+			"An integer in the range [" STRING(INT_MIN) ", " STRING(INT_MAX) "]";
+		};
 
 	inline void print(int x,FILE* dest)
 		{fprintf(dest,"%d",x);}
@@ -136,7 +159,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("long")>
-		{typedef long Type;};
+		{
+		typedef long Type;
+		static constexpr const char* description=
+			"An integer in the range [" STRING(LONG_MIN) ", " STRING(LONG_MAX) "]";
+		};
 
 	inline void print(long int x,FILE* dest)
 		{fprintf(dest,"%ld",x);}
@@ -151,7 +178,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("long long")>
-		{typedef long long Type;};
+		{
+		typedef long long Type;
+		static constexpr const char* description=
+			"An integer in the range [" STRING(LLONG_MIN) ", " STRING(LLONG_MAX) "]";
+		};
 
 	inline void print(long long int x,FILE* dest)
 		{fprintf(dest,"%lld",x);}
@@ -171,8 +202,12 @@ namespace Alice
 //#	used.
 
 	template<>
-	struct MakeType<Stringkey("unsigned char")>
-		{typedef unsigned char Type;};
+	struct MakeType<Stringkey("unsigned byte")>
+		{
+		typedef unsigned char Type;
+		static constexpr const char* description=
+			"An integer in the range [0, " STRING(UCHAR_MAX) "]";
+		};
 
 	inline void print(unsigned char x,FILE* dest)
 		{fprintf(dest,"%u",x);}
@@ -187,7 +222,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("unsigned short")>
-		{typedef unsigned short Type;};
+		{
+		typedef unsigned short Type;
+		static constexpr const char* description=
+			"An integer in the range [0, " STRING(USHRT_MAX) "]";
+		};
 
 	inline void print(unsigned short x,FILE* dest)
 		{fprintf(dest,"%u",x);}
@@ -202,7 +241,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("unsigned int")>
-		{typedef unsigned int Type;};
+		{
+		typedef unsigned int Type;
+		static constexpr const char* description=
+			"An integer in the range [0, " STRING(UINT_MAX) "]";
+		};
 
 	inline void print(unsigned int x,FILE* dest)
 		{fprintf(dest,"%u",x);}
@@ -217,7 +260,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("unsigned long")>
-		{typedef unsigned long Type;};
+		{
+		typedef unsigned long Type;
+		static constexpr const char* description=
+			"An integer in the range [0, " STRING(ULONG_MAX) "]";
+		};
 
 	inline void print(unsigned long x,FILE* dest)
 		{fprintf(dest,"%lu",x);}
@@ -234,7 +281,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("unsigned long long")>
-		{typedef unsigned long long Type;};
+		{
+		typedef unsigned long long Type;
+		static constexpr const char* description=
+			"An integer in the range [0, " STRING(ULLONG_MAX) "]";
+		};
 
 	inline void print(unsigned long long x,FILE* dest)
 		{fprintf(dest,"%llu",x);}
@@ -254,7 +305,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("float")>
-		{typedef double Type;};
+		{
+		typedef double Type;
+		static constexpr const char* description=
+			"A floating point value, single precision";
+		};
 
 	inline void print(float x,FILE* dest)
 		{fprintf(dest,"%.8e",x);}
@@ -269,7 +324,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("double")>
-		{typedef double Type;};
+		{
+		typedef double Type;
+		static constexpr const char* description=
+			"A floating point value, double precision";
+		};
 
 	inline void print(double x,FILE* dest)
 		{fprintf(dest,"%.16e",x);}
@@ -287,7 +346,11 @@ namespace Alice
 
 	template<>
 	struct MakeType<Stringkey("string")>
-		{typedef std::string Type;};
+		{
+		typedef std::string Type;
+		static constexpr const char* description=
+			"An UTF-8 encoded string";
+		};
 
 	inline void print(const std::string& x,FILE* dest)
 		{

@@ -40,36 +40,9 @@ namespace Alice
 			auto& get() noexcept
 				{return m_entries.get<key>();}
 
-			void print(FILE* dest=stdout) const noexcept
-				{
-				fprintf(dest,"{");
-				auto N=m_entries.size();
-				auto info=m_info.data;
-				m_entries.itemsEnum([N,dest,info]
-					(size_t index,Stringkey::HashValue key,const auto& x)
-					{
-					fprintf(dest,"\"%s\":",info[index].nameGet());
-					print(x.valueGet(),dest);
-					if(index + 1!=N)
-						{fprintf(dest,",");}
-					});
-				fprintf(dest,"}\n");
-				}
+			void print(FILE* dest=stdout) const noexcept;
 
-			void help(bool headers_print=0,FILE* dest=stdout) const noexcept
-				{
-				fprintf(dest,"Command line options\n"
-				       "====================\n");
-				Stringkey key_prev("");
-				auto info=m_info.data;
-				m_entries.itemsEnum([&key_prev,headers_print,info,dest]
-					(size_t index,Stringkey::HashValue key,const auto& x)
-					{
-					auto group_next=Stringkey(info[index].groupGet());
-					info[index].help(group_next!=key_prev && headers_print,dest);
-					key_prev=group_next;
-					});
-				}
+			void help(bool headers_print=0,FILE* dest=stdout) const noexcept;
 
 		private:
 			OptionMap<OptionDescriptor> m_entries;
@@ -170,6 +143,60 @@ namespace Alice
 				}
 			});
 		}
-	};
+
+	template<class OptionDescriptor>
+	void CommandLine<OptionDescriptor>::help(bool headers_print,FILE* dest) const noexcept
+		{
+		fprintf(dest,"Command line options\n"
+			"====================\n\n"
+			"This is a summary of all command line options. Values inside square brackets "
+			"are optional. For details on how to type values, see *Common types* below.\n\n");
+		Stringkey key_prev("");
+		auto info=m_info.data;
+		m_entries.itemsEnum([&key_prev,headers_print,info,dest]
+			(size_t index,Stringkey::HashValue key,const auto& x)
+			{
+			auto group_next=Stringkey(info[index].groupGet());
+			info[index].help(group_next!=key_prev && headers_print,dest);
+			key_prev=group_next;
+			});
+
+		std::map<std::string,const char*> types;
+		m_entries.itemsEnum([info,&types](size_t index,Stringkey::HashValue key,const auto& x)
+			{
+			typedef typename std::remove_reference<decltype(x)>::type Type;
+			auto description=MakeType<Type::element_type>::description;
+			if(*description!='\0')
+				{types[std::string( info[index].typeGet() )]=description;}
+			});
+
+		fprintf(dest,"\nCommon types\n"
+			"============\n");
+		auto type=types.begin();
+		auto type_end=types.end();
+		while(type!=type_end)
+			{
+			fprintf(dest,"\n%s\n    %s\n",type->first.c_str(),type->second);
+			++type;
+			}
+		}
+
+	template<class OptionDescriptor>
+	void CommandLine<OptionDescriptor>::print(FILE* dest) const noexcept
+		{
+		fprintf(dest,"{");
+		auto N=m_entries.size();
+		auto info=m_info.data;
+		m_entries.itemsEnum([N,dest,info]
+			(size_t index,Stringkey::HashValue key,const auto& x)
+			{
+			fprintf(dest,"\"%s\":",info[index].nameGet());
+			print(x.valueGet(),dest);
+			if(index + 1!=N)
+				{fprintf(dest,",");}
+			});
+		fprintf(dest,"}\n");
+		}
+	}
 
 #endif

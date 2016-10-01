@@ -95,13 +95,16 @@ namespace Alice
 				public:
 					Content()=default;
 
+					static constexpr Stringkey element_type{OptionDescriptor::options[k - 1].typeGet()};
+					static constexpr auto multiplicity=OptionDescriptor::options[k-1].multiplicityGet();
+
 					typedef typename MultiplicitySelector<
-						 typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type
-						,OptionDescriptor::options[k-1].multiplicityGet()>::Type ValueType;
+						 typename MakeType<element_type>::Type
+						,multiplicity>::Type ValueType;
 
 					static constexpr bool multi=MultiplicitySelector<
-						 typename MakeType<Stringkey(OptionDescriptor::options[k-1].typeGet())>::Type
-						,OptionDescriptor::options[k-1].multiplicityGet()>::multi;
+						 typename MakeType<element_type>::Type
+						,multiplicity>::multi;
 
 					const ValueType& valueGet() const noexcept
 						{return m_data.first;}
