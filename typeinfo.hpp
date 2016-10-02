@@ -5,6 +5,7 @@
 
 #include "stringkey.hpp"
 #include "narrow_cast.hpp"
+#include "stringformat.hpp"
 #include <string>
 #include <vector>
 #include <climits>
@@ -53,6 +54,13 @@ namespace Alice
 		}
 
 
+	template<class T>
+	constexpr auto min_string=toString<T,std::numeric_limits<T>::min()>();
+
+	template<class T>
+	constexpr auto max_string=toString<T,std::numeric_limits<T>::max()>();
+
+
 //# Predefined types
 //# ================
 //#	These types are predefined by Alice. It is likely that the caller wants
@@ -70,11 +78,13 @@ namespace Alice
 	struct MakeType<Stringkey("bool")>
 		{
 		typedef bool Type;
-		static constexpr const char* description=
-			"can be true, false, yes, or no. "
-			"`true` is equivalent to `yes` and `false` is equivalent to no. "
-			"It is also possible to use a number. In this case, any non-zero value is "
-			"`true` and zero is `false`.";
+		static constexpr const char* descriptionGet()
+			{
+			return "can be `true`, `false`, `yes`, or `no`. "
+				"`true` is equivalent to `yes` and `false` is equivalent to no. "
+				"It is also possible to use a number. In this case, any non-zero value is "
+				"`true` and zero is `false`.";
+			}
 		};
 
 	inline void print(bool x,FILE* dest)
@@ -93,20 +103,45 @@ namespace Alice
 			}
 		};
 
+//#	Base class for integer types
+//#	----------------------------
+	namespace
+		{
+		struct Begin
+			{
+			static constexpr const char* get() noexcept
+				{return "An integer in the range [";}
+			};
+
+		struct Comma
+			{
+			static constexpr const char* get() noexcept
+				{return ", ";}
+			};
+
+		template<class T>
+		static constexpr auto integer_description=make_array<Begin>()
+			.append(min_string<T>).append(make_array<Comma>()).append(max_string<T>)
+			.append(']').append('\0');
+		}
+
+	template<class T>
+	struct IntegerType
+		{
+		static constexpr const char* descriptionGet() noexcept
+			{return integer_description<T>.data;}
+
+		typedef T Type;
+		};
 
 //#	Signed integers
 //#	---------------
-//#	Signed integers uses the raw C++ types. `char` is assumed to be an 
-//#	one byte integer, because it is unlikely that a one byte string is
-//#	ever used.
+//#	Signed integers uses the raw C++ types except for `char`, which is replaced
+//# by `byte`. This is because it is unlikely that a one byte string is ever used.
 
 	template<>
-	struct MakeType<Stringkey("byte")>
-		{
-		typedef char Type;
-		static constexpr const char* description=
-			"An integer in the range [" STRING(SCHAR_MIN) ", " STRING(SCHAR_MAX) "]";
-		};
+	struct MakeType<Stringkey("byte")>:public IntegerType<char>
+		{};
 
 	inline void print(char x,FILE* dest)
 		{fprintf(dest,"%d",x);}
@@ -120,11 +155,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("short")>
+	struct MakeType<Stringkey("short")>:public IntegerType<short>
 		{
-		typedef short Type;
-		static constexpr const char* description=
-			"An integer in the range [" STRING(SHRT_MIN) ", " STRING(SHRT_MAX) "]";
 		};
 
 	inline void print(short x,FILE* dest)
@@ -139,12 +171,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("int")>
-		{
-		typedef int Type;
-		static constexpr const char* description=
-			"An integer in the range [" STRING(INT_MIN) ", " STRING(INT_MAX) "]";
-		};
+	struct MakeType<Stringkey("int")>:public IntegerType<int>
+		{};
 
 	inline void print(int x,FILE* dest)
 		{fprintf(dest,"%d",x);}
@@ -158,12 +186,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("long")>
-		{
-		typedef long Type;
-		static constexpr const char* description=
-			"An integer in the range [" STRING(LONG_MIN) ", " STRING(LONG_MAX) "]";
-		};
+	struct MakeType<Stringkey("long")>:public IntegerType<long>
+		{};
 
 	inline void print(long int x,FILE* dest)
 		{fprintf(dest,"%ld",x);}
@@ -177,12 +201,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("long long")>
-		{
-		typedef long long Type;
-		static constexpr const char* description=
-			"An integer in the range [" STRING(LLONG_MIN) ", " STRING(LLONG_MAX) "]";
-		};
+	struct MakeType<Stringkey("long long")>:public IntegerType<long long>
+		{};
 
 	inline void print(long long int x,FILE* dest)
 		{fprintf(dest,"%lld",x);}
@@ -202,12 +222,8 @@ namespace Alice
 //#	used.
 
 	template<>
-	struct MakeType<Stringkey("unsigned byte")>
-		{
-		typedef unsigned char Type;
-		static constexpr const char* description=
-			"An integer in the range [0, " STRING(UCHAR_MAX) "]";
-		};
+	struct MakeType<Stringkey("unsigned byte")>:public IntegerType<unsigned char>
+		{};
 
 	inline void print(unsigned char x,FILE* dest)
 		{fprintf(dest,"%u",x);}
@@ -221,12 +237,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("unsigned short")>
-		{
-		typedef unsigned short Type;
-		static constexpr const char* description=
-			"An integer in the range [0, " STRING(USHRT_MAX) "]";
-		};
+	struct MakeType<Stringkey("unsigned short")>:public IntegerType<unsigned short>
+		{};
 
 	inline void print(unsigned short x,FILE* dest)
 		{fprintf(dest,"%u",x);}
@@ -240,12 +252,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("unsigned int")>
-		{
-		typedef unsigned int Type;
-		static constexpr const char* description=
-			"An integer in the range [0, " STRING(UINT_MAX) "]";
-		};
+	struct MakeType<Stringkey("unsigned int")>:public IntegerType<unsigned int>
+		{};
 
 	inline void print(unsigned int x,FILE* dest)
 		{fprintf(dest,"%u",x);}
@@ -259,12 +267,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("unsigned long")>
-		{
-		typedef unsigned long Type;
-		static constexpr const char* description=
-			"An integer in the range [0, " STRING(ULONG_MAX) "]";
-		};
+	struct MakeType<Stringkey("unsigned long")>:public IntegerType<unsigned long>
+		{};
 
 	inline void print(unsigned long x,FILE* dest)
 		{fprintf(dest,"%lu",x);}
@@ -280,12 +284,8 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("unsigned long long")>
-		{
-		typedef unsigned long long Type;
-		static constexpr const char* description=
-			"An integer in the range [0, " STRING(ULLONG_MAX) "]";
-		};
+	struct MakeType<Stringkey("unsigned long long")>:public IntegerType<unsigned long long>
+		{};
 
 	inline void print(unsigned long long x,FILE* dest)
 		{fprintf(dest,"%llu",x);}
@@ -307,8 +307,8 @@ namespace Alice
 	struct MakeType<Stringkey("float")>
 		{
 		typedef double Type;
-		static constexpr const char* description=
-			"A floating point value, single precision";
+		static constexpr const char* descriptionGet()
+			{return "A floating point value, single precision";}
 		};
 
 	inline void print(float x,FILE* dest)
@@ -326,8 +326,8 @@ namespace Alice
 	struct MakeType<Stringkey("double")>
 		{
 		typedef double Type;
-		static constexpr const char* description=
-			"A floating point value, double precision";
+		static constexpr const char* descriptionGet()
+			{return "A floating point value, double precision";}
 		};
 
 	inline void print(double x,FILE* dest)
@@ -348,8 +348,8 @@ namespace Alice
 	struct MakeType<Stringkey("string")>
 		{
 		typedef std::string Type;
-		static constexpr const char* description=
-			"An UTF-8 encoded string";
+		static constexpr const char* descriptionGet()
+			{return "An UTF-8 encoded string";}
 		};
 
 	inline void print(const std::string& x,FILE* dest)
@@ -409,33 +409,36 @@ namespace Alice
 		fprintf(dest,"]");
 		}
 
-	template<class Type,class ErrorHandler,bool multi>
-	struct MakeValueHelper
-		{};
-
-	template<class Type,class ErrorHandler>
-	struct MakeValueHelper<Type,ErrorHandler,0>
+	namespace
 		{
-		static Type make_value(const std::vector<std::string>& x)
-			{return Alice::make_value<Type,ErrorHandler>(x[0]);}
-		};
+		template<class Type,class ErrorHandler,bool multi>
+		struct MakeValueHelper
+			{};
 
-	template<class Type,class ErrorHandler>
-	struct MakeValueHelper<Type,ErrorHandler,1>
-		{
-		static Type make_value(const std::vector<std::string>& x)
+		template<class Type,class ErrorHandler>
+		struct MakeValueHelper<Type,ErrorHandler,0>
 			{
-			Type ret;
-			auto ptr=x.data();
-			auto ptr_end=ptr+x.size();
-			while(ptr!=ptr_end)
+			static Type make_value(const std::vector<std::string>& x)
+				{return Alice::make_value<Type,ErrorHandler>(x[0]);}
+			};
+
+		template<class Type,class ErrorHandler>
+		struct MakeValueHelper<Type,ErrorHandler,1>
+			{
+			static Type make_value(const std::vector<std::string>& x)
 				{
-				ret.push_back(Alice::make_value<typename Type::value_type,ErrorHandler>(*ptr));
-				++ptr;
+				Type ret;
+				auto ptr=x.data();
+				auto ptr_end=ptr+x.size();
+				while(ptr!=ptr_end)
+					{
+					ret.push_back(Alice::make_value<typename Type::value_type,ErrorHandler>(*ptr));
+					++ptr;
+					}
+				return std::move(ret);
 				}
-			return std::move(ret);
-			}
-		};
+			};
+		}
 
 	template<class Type,class ErrorHandler,bool multi>
 	inline auto make_value(const std::vector<std::string>& x)

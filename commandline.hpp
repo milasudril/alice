@@ -165,7 +165,7 @@ namespace Alice
 		m_entries.itemsEnum([info,&types](size_t index,Stringkey::HashValue key,const auto& x)
 			{
 			typedef typename std::remove_reference<decltype(x)>::type Type;
-			auto description=MakeType<Type::element_type>::description;
+			auto description=MakeType<Type::element_type>::descriptionGet();
 			if(*description!='\0')
 				{types[std::string( info[index].typeGet() )]=description;}
 			});

@@ -61,7 +61,7 @@ namespace Alice
 				{
 				ErrorMessage message;
 				auto v=static_cast<unsigned long long int>(x);
-				snprintf(message.data,512,"%llu is outside valid range. The allowed range is [%lld,%lld]"
+				snprintf(message.data,512,"%llu is outside valid range. The allowed range is [%lld, %lld]"
 					,v,min,max);
 				message.data[511]=0;
 				throw message;
@@ -72,7 +72,7 @@ namespace Alice
 				{
 				ErrorMessage message;
 				auto v=static_cast<long long int>(x);
-				snprintf(message.data,512,"%lld is outside valid range. The allowed range is [%lld,%lld]"
+				snprintf(message.data,512,"%lld is outside valid range. The allowed range is [%lld, %lld]"
 					,v,min,max);
 				message.data[511]=0;
 				throw message;
@@ -84,7 +84,7 @@ namespace Alice
 				ErrorMessage message;
 				auto v_min=static_cast<unsigned long long int>(min);
 				auto v_max=static_cast<unsigned long long int>(max);
-				snprintf(message.data,512,"Value is outside valid range. The allowed range is [%llu,%llu]"
+				snprintf(message.data,512,"Value is outside valid range. The allowed range is [%llu, %llu]"
 					,v_min,v_max);
 				message.data[511]=0;
 				throw message;
@@ -96,7 +96,7 @@ namespace Alice
 				ErrorMessage message;
 				auto v_min=static_cast<long long int>(min);
 				auto v_max=static_cast<long long int>(max);
-				snprintf(message.data,512,"Value outside valid range. The allowed range is [%lld,%lld]"
+				snprintf(message.data,512,"Value outside valid range. The allowed range is [%lld, %lld]"
 					,v_min,v_max);
 				message.data[511]=0;
 				throw message;
