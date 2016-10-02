@@ -29,6 +29,8 @@ ALICE_OPTION_DESCRIPTOR(OptionDescriptor
 	,{"Custom type","do-stuff-r","Perform stuff R","hatter",Alice::Option::Multiplicity::ZERO_OR_MORE}
 	);
 
+//# Type alias
+
 namespace Alice
 	{
 	template<>
@@ -38,6 +40,9 @@ namespace Alice
 			{return "The length measured in meters";}
 		};
 	}
+
+
+//# Custom type
 
 struct Hatter
 	{
@@ -108,6 +113,13 @@ namespace Alice
 							}
 						case '\0':
 							ret.madness=Alice::make_value<decltype(Hatter::madness),ErrorHandler>(buffer);
+							if(ret.madness<0)
+								{
+								ErrorMessage msg;
+								snprintf(msg.data,msg.size()-1,"Hatter %s has a negative madness value",ret.name.c_str());
+								msg.data[msg.size()-1]=0;
+								throw msg;
+								}
 							return ret;
 						default:
 							buffer+=ch_in;
@@ -128,6 +140,8 @@ namespace Alice
 		fprintf(dest,"}\n");
 		}
 	}
+
+//# Main
 
 int main(int argc,char** argv)
 	{
