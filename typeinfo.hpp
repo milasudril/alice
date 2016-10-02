@@ -27,38 +27,9 @@ namespace Alice
 	Type make_value(const std::string& x)
 		{return MakeValue<Type,ErrorHandler>::make_value(x);}
 
-	template<class ErrorHandler>
-	unsigned long long int toUint(const std::string& str)
-		{
-		char* ptr_end;
-		auto ret=strtoull(str.c_str(), &ptr_end, 10);
-		if(errno==ERANGE)
-			{
-			ErrorHandler::rangeError(std::numeric_limits<unsigned long long>::min()	
-				,std::numeric_limits<unsigned long long>::max());
-			}
-		return ret;
-		}
+	template<class Type>
+	void print(const Type&,FILE* dest);
 
-	template<class ErrorHandler>
-	long long int toInt(const std::string& str)
-		{
-		char* ptr_end;
-		auto ret=strtoll(str.c_str(), &ptr_end, 10);
-		if(errno==ERANGE)
-			{
-			ErrorHandler::rangeError(std::numeric_limits<long long>::min()	
-				,std::numeric_limits<long long>::max());
-			}
-		return ret;
-		}
-
-
-	template<class T>
-	constexpr auto min_string=toString<T,std::numeric_limits<T>::min()>();
-
-	template<class T>
-	constexpr auto max_string=toString<T,std::numeric_limits<T>::max()>();
 
 
 //# Predefined types
@@ -90,6 +61,33 @@ namespace Alice
 	inline void print(bool x,FILE* dest)
 		{fprintf(dest,"%s",x?"true":"false");}
 
+
+	template<class ErrorHandler>
+	unsigned long long int toUint(const std::string& str)
+		{
+		char* ptr_end;
+		auto ret=strtoull(str.c_str(), &ptr_end, 10);
+		if(errno==ERANGE)
+			{
+			ErrorHandler::rangeError(std::numeric_limits<unsigned long long>::min()	
+				,std::numeric_limits<unsigned long long>::max());
+			}
+		return ret;
+		}
+
+		template<class ErrorHandler>
+		long long int toInt(const std::string& str)
+			{
+			char* ptr_end;
+			auto ret=strtoll(str.c_str(), &ptr_end, 10);
+			if(errno==ERANGE)
+				{
+				ErrorHandler::rangeError(std::numeric_limits<long long>::min()	
+					,std::numeric_limits<long long>::max());
+				}
+			return ret;
+			}
+
 	template<class ErrorHandler>
 	struct MakeValue<bool,ErrorHandler>
 		{
@@ -118,6 +116,12 @@ namespace Alice
 			static constexpr const char* get() noexcept
 				{return ", ";}
 			};
+
+		template<class T>
+		constexpr auto min_string=toString<T,std::numeric_limits<T>::min()>();
+
+		template<class T>
+		constexpr auto max_string=toString<T,std::numeric_limits<T>::max()>();
 
 		template<class T>
 		static constexpr auto integer_description=make_array<Begin>()

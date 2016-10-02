@@ -193,7 +193,7 @@ namespace Alice
 			fprintf(dest,"\"%s\":",info[index].nameGet());
 			print(x.valueGet(),dest);
 			if(index + 1!=N)
-				{fprintf(dest,",");}
+				{fprintf(dest,"\n,");}
 			});
 		fprintf(dest,"}\n");
 		}

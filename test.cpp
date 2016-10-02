@@ -22,7 +22,112 @@ ALICE_OPTION_DESCRIPTOR(OptionDescriptor
 
 	,{"Zero or more","do-stuff-n","Perform stuff N","string",Alice::Option::Multiplicity::ZERO_OR_MORE}
 	,{"One","do-stuff-o","Perform stuff O","string",Alice::Option::Multiplicity::ONE}
-	,{"One or more","do-stuff-p","Perform stuff P","string",Alice::Option::Multiplicity::ONE_OR_MORE});
+	,{"One or more","do-stuff-p","Perform stuff P","string",Alice::Option::Multiplicity::ONE_OR_MORE}
+
+	,{"Type alias","do-stuff-q","Perform stuff Q","length",Alice::Option::Multiplicity::ONE_OR_MORE}
+
+	,{"Custom type","do-stuff-r","Perform stuff R","hatter",Alice::Option::Multiplicity::ZERO_OR_MORE}
+	);
+
+namespace Alice
+	{
+	template<>
+	struct MakeType<Stringkey("length")>:public MakeType<Stringkey("double")>
+		{
+		static constexpr const char* descriptionGet() noexcept
+			{return "The length measured in meters";}
+		};
+	}
+
+struct Hatter
+	{
+	std::string name;
+	double madness;
+	};
+
+namespace Alice
+	{
+	template<>
+	struct MakeType<Stringkey("hatter")>
+		{
+		typedef Hatter Type;
+		static constexpr const char* descriptionGet() noexcept
+			{
+			return "A Hatter is entered as a pair `name,madness` where "
+				"name is a string, and madness is a value greater than or equal to zero.";
+			}
+		};
+
+	template<class ErrorHandler>
+	struct MakeValue<Hatter,ErrorHandler>
+		{
+		static Hatter make_value(const std::string& str);
+		};
+
+	template<class ErrorHandler>
+	Hatter MakeValue<Hatter,ErrorHandler>::make_value(const std::string& str)
+		{
+		Hatter ret;
+		auto ptr=str.data();
+		auto count=0;
+		std::string buffer;
+		while(true)
+			{
+			auto ch_in=*ptr;
+			switch(count)
+				{
+				case 0:
+					switch(ch_in)
+						{
+						case '\0':
+							{
+							ErrorMessage msg;
+							snprintf(msg.data,msg.size()-1,"The Hatter %s has no madness value",ret.name.c_str());
+							msg.data[msg.size()-1]=0;
+							throw msg;
+							}
+							
+						case ',':
+							++count;
+							break;
+
+						default:
+							ret.name+=ch_in;
+						}
+
+						break;
+				case 1:
+					switch(ch_in)
+						{
+						case ',':
+							{
+							ErrorMessage msg;
+							snprintf(msg.data,msg.size()-1,"To many arguments given to the Hatter %s",ret.name.c_str());
+							msg.data[msg.size()-1]=0;
+							throw msg;
+							}
+						case '\0':
+							ret.madness=Alice::make_value<decltype(Hatter::madness),ErrorHandler>(buffer);
+							return ret;
+						default:
+							buffer+=ch_in;
+						}
+					break;
+				}
+			++ptr;
+			}
+		}
+
+	template<>
+	void print<Hatter>(const Hatter& hatter,FILE* dest)
+		{
+		fprintf(dest,"{\"name\":");
+		print(hatter.name,dest);
+		fprintf(dest,",\"madness\":");
+		print(hatter.madness,dest);
+		fprintf(dest,"}\n");
+		}
+	}
 
 int main(int argc,char** argv)
 	{
