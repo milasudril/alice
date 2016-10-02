@@ -1,21 +1,145 @@
-<h1>Alice Long optIons C++ Extractor</h1>
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="fonts.css">
+<link rel="stylesheet" type="text/css" href="doclayout.css">
+<link rel="stylesheet" type="text/css" href="doccolors.css">
+<link rel="stylesheet" type="text/css" href="dochighlight.css">
+<title>Alice Long optIons C++ Extractor</title>
+</head>
+<body>
+<header>
+<div class="logo">Alice</div>
+</header>
+<main>
 
-<h2>Features</h2>
+<h1>Alice</h2>
+<p>Alice Long optIons C++ Extractor is a command line parser for use with C++. Alice makes it easy to fetch a command line options, without the need for converting strings to the desired type. Alice also provides automatic help text generation, as well as the ability to export the command line in JSON format.</p>
 
-<ul>
-<li><em>compile time</em> key access. It is not possible to ask for a key that is not registred.</li>
-<li><em>compile time</em> value type. Each value has its type defined at compile time.</li>
-<li>Build-in command line summary generation</li>
-<li>Build-in command line dump. The given command line is formatted as JSON data.</li>
-</ul>
+<h2>Obtaining Alice</h2>
+<p>The source for the latest Alice can be obtained by cloning the git repository</p>
+<pre><code>git clone https://github.com/milasudril/alice</code></pre>
 
-<h2>Requirements</h2>
+<p>To compile it, <a href="https://milasudril.github.io/maike">Maike</a> is required, as well as a C++-14 complient compiler.</p>
 
-<ul>
-<li>C++14 support</li>
-<li>maike</li>
-</ul>
+<p>Alice is header-heavy, but there are some parts that are not implemented in header files. The command</p>
 
-<h2>Example usage</h2>
+<pre><code>maike --list-all-targets</code></pre>
 
-<p>See <code>test.cpp</code></p>
+<p>will list all header files, as well as the object code (<code>.o</code> files) that needs to be linked to an application that uses Alice.</p>
+
+<h2>Using Alice</h2>
+<p>The file <a href="https://github.com/milasudril/alice/blob/master/test.cpp"><code>test.cpp</code></a> contains a minimal example demonstrating Alice's features. Since Maike will store all targets in the <code>__targets</code> directory, it can be run by executing</p>
+
+<pre><code>__targets/test</code></pre>
+
+<p>from the Alice source directory. The command</p>
+
+<pre><code>__targets/test --help</code></pre>
+
+<p>shows a description of the command line.</p>
+
+<h3>Creating a type alias</h3>
+<p>Alice uses plane quite technical names for data types. While this works well for generating the placeholder help text for the test application, it is probably not what an end user expects to see. If a built-in type is used to represent the value of a parameter, but its name is inappropriate, it is possible to define a type alias by inheriting from the corresponding version of <code>MakeType</code>.</p>
+
+<pre>
+namespace Alice
+	{
+	template&lt;&gt;
+	struct MakeType&lt;Stringkey("length")&gt;:public MakeType&lt;Stringkey("double")&gt;
+		{};
+	}
+</pre>
+
+<p>Then, it is possible to use <code>length</code> instead of <code>double</code> in the option descriptor. If a <code>length</code> needs another explanation than a <code>double</code>, the description can be overrided:</p>
+
+<pre>
+namespace Alice
+	{
+	template&lt;&gt;
+	struct MakeType&lt;Stringkey("length")&gt;:public MakeType&lt;Stringkey("double")&gt;
+		{
+		static constexpr const char* descriptionGet() noexcept
+			{return "The length measured in meters";}
+		};
+	}
+</pre>
+
+
+<h3>Defining custom types</h3>
+<p>Alice can also be extended by defining custom types. For example, there might be an option that accepts <code>Hatter</code> objects.</p>
+
+<pre>
+struct Hatter
+	{
+	std::string name;
+	double madness;
+	};
+</pre>
+
+
+<p>To add the <code>Hatter</code> type, first specialize the <code>MakeType</code> struct as above:</p>
+
+<pre>
+namespace Alice
+	{
+	template&lt;&gt;
+	struct MakeType&lt;Stringkey("hatter")&gt;
+		{
+		typedef Hatter Type;
+		static constexpr const char* descriptionGet() noexcept
+			{
+			return "A Hatter is entered as a pair `name,madness` where "
+				"name is a string, and madness is a value greater than or equal to zero.";
+			}
+		};
+	}
+</pre>
+
+<p>If the print method is ever called on the command line object, add a specialization of `Alice::print`</p>
+
+<pre>
+namespace Alice
+	{
+	template&lt;&gt;
+	void print&lt;Hatter&gt;(const Hatter&amp; hatter,FILE* dest)
+		{
+		fprintf(dest,"{\"name\":");
+		print(hatter.name,dest);
+		fprintf(dest,",\"madness\":");
+		print(hatter.madness,dest);
+		fprintf(dest,"}\n");
+		}
+	}
+</pre>
+
+<p>Finally, implement a parser, that converts a <code>std::string</code> to a <code>Hatter</code>, this takes more effort 
+(see <a href="https://github.com/milasudril/alice/blob/master/test.cpp"><code>test.cpp</code></a>), but below is a stub, that can be used as a starting point:</p>
+
+<pre>
+namespace Alice
+	{
+	template&lt;class ErrorHandler&gt;
+	struct MakeValue&lt;Hatter,ErrorHandler&gt;
+		{
+		static Hatter make_value(const std::string&amp; str);
+		};
+
+	template&lt;class ErrorHandler&gt;
+	Hatter MakeValue&lt;Hatter,ErrorHandler&gt;::make_value(const std::string&amp; str)
+		{
+		Hatter ret;
+	//	Convert `str` into a Hatter somehow...
+	
+		return std::move(ret);
+		}
+	}
+</pre>
+
+</main>
+<footer><address>Torbjörn Rathsman 2016</address></footer>
+
+
+</body>
+</html>
