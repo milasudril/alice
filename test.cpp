@@ -120,7 +120,7 @@ namespace Alice
 								msg.data[msg.size()-1]=0;
 								throw msg;
 								}
-							return ret;
+							return std::move(ret);
 						default:
 							buffer+=ch_in;
 						}
