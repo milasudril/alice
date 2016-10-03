@@ -3,8 +3,8 @@
 //@	,"dependencies_extra":[{"ref":"optionruntime.o","rel":"implementation"}]
 //@	}
 
-#ifndef ALICE_COMMANDLINEBASE_HPP
-#define ALICE_COMMANDLINEBASE_HPP
+#ifndef ALICE_OPTIONRUNTIME_HPP
+#define ALICE_OPTIONRUNTIME_HPP
 
 #include "stringkey.hpp"
 #include <string>

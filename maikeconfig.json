@@ -16,7 +16,7 @@
             "config":{
                 "appcompile":{
                     "args":[
-                        "-g",
+                        "-O2",
                         "-fpic",
                         "{cxxversion}",
                         "-Wall",
@@ -29,13 +29,13 @@
                     ],
                     "name":"g++"
                 },
-                "cflags_extra":[],
+                "cflags_extra":["fno-stack-protector"],
                 "cflags_format":"-^",
                 "cxxversion_max":-1,
                 "cxxversion_min":201402,
                 "dllcompile":{
                     "args":[
-                        "-g",
+                        "-O2",
                         "-fpic",
                         "{cxxversion}",
                         "-Wall",
@@ -67,7 +67,7 @@
                 "objcompile":{
                     "args":[
                         "-c",
-                        "-g",
+                        "-O2",
                         "-fpic",
                         "{cxxversion}",
                         "-Wall",
