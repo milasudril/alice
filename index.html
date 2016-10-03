@@ -21,15 +21,59 @@
 <p>The source for the latest Alice can be obtained by cloning the git repository</p>
 <pre><code>git clone https://github.com/milasudril/alice</code></pre>
 
-<p>To compile it, <a href="https://milasudril.github.io/maike">Maike</a> is required, as well as a C++-14 complient compiler.</p>
+<p>To compile it, <a href="https://milasudril.github.io/maike">Maike</a> is required, as well as a C++-14 complient compiler. The library can be installed by using the supplied install script:</p>
 
-<p>Alice is header-heavy, but there are some parts that are not implemented in header files. The command</p>
+<pre>maike
+./install.sh --prefix=/home/bob
+</pre>
 
-<pre><code>maike --list-all-targets</code></pre>
+<p>or if root</p>
 
-<p>will list all header files, as well as the object code (<code>.o</code> files) that needs to be linked to an application that uses Alice.</p>
+<pre>maike
+sudo ./install.sh
+</pre>
+
+<p>Since <code>/usr/local</code> is the default prefix, Alice will be installed there.</p>
 
 <h2>Using Alice</h2>
+<p>An application that uses Alice needs to link to <code>libalice</code>. Using <a href="https://milasudril.github.io/maike">Maike</a>, the "Hello, World" application looks like</p>
+
+<pre>
+//@	{
+//@	"targets":
+//@		[{
+//@		 "name":"hello","type":"application"
+//@		,"dependencies":[{"ref":"alice","rel":"external"}]
+//@		}]
+//@	}
+
+#include &lt;alice/alice.hpp&gt;
+
+ALICE_OPTION_DESCRIPTOR(OptionDescriptor
+	,{"Category","option-name","Option description","string",Alice::Option::Multiplicity::ZERO_OR_ONE});
+
+int main(int argc,char** argv)
+	{
+	try
+		{
+		Alice::CommandLine&lt;OptionDescriptor&gt; cmdline(argc,argv);
+
+	//	Use the command line object. See test.cpp for more info.
+
+		cmdline.help(1);
+		}
+	catch(const Alice::ErrorMessage&amp; msg)
+		{
+		fprintf(stderr,"Command line error: %s\n",msg.data);
+		return -1;
+		}
+
+	return 0;
+	}
+</pre>
+
+<p>Since Alice requires C++14, additional options may be needed to the compiler. When using <a href="https://milasudril.github.io/maike">Maike</a>, set the field <em>cxxversion_min</em> in the project configuration file to a value greater than or equal to <strong>201402</strong> to ensure that C++14 features are enabled.</p>
+
 <p>The file <a href="https://github.com/milasudril/alice/blob/master/test.cpp"><code>test.cpp</code></a> contains a minimal example demonstrating Alice's features. Since Maike will store all targets in the <code>__targets</code> directory, it can be run by executing</p>
 
 <pre><code>__targets/test</code></pre>
