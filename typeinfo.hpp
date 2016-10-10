@@ -75,18 +75,18 @@ namespace Alice
 		return ret;
 		}
 
-		template<class ErrorHandler>
-		long long int toInt(const std::string& str)
+	template<class ErrorHandler>
+	long long int toInt(const std::string& str)
+		{
+		char* ptr_end;
+		auto ret=strtoll(str.c_str(), &ptr_end, 10);
+		if(errno==ERANGE)
 			{
-			char* ptr_end;
-			auto ret=strtoll(str.c_str(), &ptr_end, 10);
-			if(errno==ERANGE)
-				{
-				ErrorHandler::rangeError(std::numeric_limits<long long>::min()	
-					,std::numeric_limits<long long>::max());
-				}
-			return ret;
+			ErrorHandler::rangeError(std::numeric_limits<long long>::min()	
+				,std::numeric_limits<long long>::max());
 			}
+		return ret;
+		}
 
 	template<class ErrorHandler>
 	struct MakeValue<bool,ErrorHandler>
@@ -236,7 +236,7 @@ namespace Alice
 	struct MakeValue<unsigned char,ErrorHandler>
 		{
 		static unsigned char make_value(const std::string& x)
-			{return narrow_cast<unsigned char,ErrorHandler>( toInt<ErrorHandler>(x) );}
+			{return narrow_cast<unsigned char,ErrorHandler>( toUint<ErrorHandler>(x) );}
 		};
 
 
@@ -251,7 +251,7 @@ namespace Alice
 	struct MakeValue<unsigned short,ErrorHandler>
 		{
 		static unsigned short make_value(const std::string& x)
-			{return narrow_cast<unsigned short,ErrorHandler>( toInt<ErrorHandler>(x) );}
+			{return narrow_cast<unsigned short,ErrorHandler>( toUint<ErrorHandler>(x) );}
 		};
 
 
@@ -266,7 +266,7 @@ namespace Alice
 	struct MakeValue<unsigned int,ErrorHandler>
 		{
 		static unsigned int make_value(const std::string& x)
-			{return narrow_cast<unsigned int,ErrorHandler>( toInt<ErrorHandler>(x) );}
+			{return narrow_cast<unsigned int,ErrorHandler>( toUint<ErrorHandler>(x) );}
 		};
 
 
@@ -282,7 +282,7 @@ namespace Alice
 		{
 		static unsigned long make_value(const std::string& x)
 			{
-			return narrow_cast<unsigned long,ErrorHandler>( toInt<ErrorHandler>(x) );
+			return narrow_cast<unsigned long,ErrorHandler>( toUint<ErrorHandler>(x) );
 			}
 		};
 
