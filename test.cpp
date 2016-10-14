@@ -36,7 +36,7 @@ namespace Alice
 	template<>
 	struct MakeType<Stringkey("length")>:public MakeType<Stringkey("double")>
 		{
-		static constexpr const char* descriptionGet() noexcept
+		static constexpr const char* descriptionShortGet() noexcept
 			{return "The length measured in meters";}
 		};
 	}
@@ -53,10 +53,16 @@ struct Hatter
 namespace Alice
 	{
 	template<>
-	struct MakeType<Stringkey("hatter")>
+	struct MakeType<Stringkey("hatter")>:public MakeTypeBase
 		{
 		typedef Hatter Type;
-		static constexpr const char* descriptionGet() noexcept
+
+		static constexpr const char* descriptionShortGet() noexcept
+			{
+			return "name,madness";
+			}
+
+		static constexpr const char* descriptionLongGet() noexcept
 			{
 			return "A Hatter is entered as a pair `name,madness` where "
 				"name is a string, and madness is a value greater than or equal to zero.";

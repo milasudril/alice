@@ -161,14 +161,21 @@ namespace Alice
 			key_prev=group_next;
 			});
 
-		std::map<std::string,const char*> types;
+		std::map<std::string,std::pair<const char*,const char*>> types;
 		m_entries.itemsEnum([info,&types](size_t index,Stringkey::HashValue key,const auto& x)
 			{
 			typedef typename std::remove_reference<decltype(x)>::type Type;
-			auto description=MakeType<Type::element_type>::descriptionGet();
-			if(*description!='\0')
-				{types[std::string( info[index].typeGet() )]=description;}
+			auto description_long=MakeType<Type::element_type>::descriptionLongGet();
+			auto description_short=MakeType<Type::element_type>::descriptionShortGet();
+			if(description_long!=nullptr || description_short!=nullptr)
+				{
+				types[std::string( info[index].typeGet() )]=
+					{description_short,description_long};
+				}
 			});
+
+		if(types.size()==0) //Do not print anything more if there are no items in type dictionary
+			{return;}
 
 		fprintf(dest,"\nCommon types\n"
 			"============\n");
@@ -176,7 +183,11 @@ namespace Alice
 		auto type_end=types.end();
 		while(type!=type_end)
 			{
-			fprintf(dest,"\n%s\n    %s\n",type->first.c_str(),type->second);
+			fprintf(dest,"\n%s",type->first.c_str());
+			if(type->second.first!=nullptr)
+				{fprintf(dest," := [%s]",type->second.first);}
+			if(type->second.second!=nullptr)
+				{fprintf(dest,"\n    %s\n",type->second.second);}
 			++type;
 			}
 		}

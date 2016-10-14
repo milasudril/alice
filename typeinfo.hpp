@@ -15,6 +15,17 @@
 
 namespace Alice
 	{
+	struct MakeTypeBase
+		{
+		typedef void Type;
+
+		static constexpr const char* descriptionLongGet()
+			{return nullptr;}
+
+		static constexpr const char* descriptionShortGet()
+			{return nullptr;}
+		};
+
 	template<Stringkey::HashValue key>
 	struct MakeType
 		{};
@@ -46,10 +57,11 @@ namespace Alice
 //#	value
 
 	template<>
-	struct MakeType<Stringkey("bool")>
+	struct MakeType<Stringkey("bool")>:public MakeTypeBase
 		{
 		typedef bool Type;
-		static constexpr const char* descriptionGet()
+
+		static constexpr const char* descriptionLongGet()
 			{
 			return "can be `true`, `false`, `yes`, or `no`. "
 				"`true` is equivalent to `yes` and `false` is equivalent to no. "
@@ -130,9 +142,9 @@ namespace Alice
 		}
 
 	template<class T>
-	struct IntegerType
+	struct IntegerType:public MakeTypeBase
 		{
-		static constexpr const char* descriptionGet() noexcept
+		static constexpr const char* descriptionLongGet() noexcept
 			{return integer_description<T>.data;}
 
 		typedef T Type;
@@ -308,10 +320,10 @@ namespace Alice
 //#	--------------------
 
 	template<>
-	struct MakeType<Stringkey("float")>
+	struct MakeType<Stringkey("float")>:public MakeTypeBase
 		{
 		typedef double Type;
-		static constexpr const char* descriptionGet()
+		static constexpr const char* descriptionLongGet()
 			{return "A floating point value, single precision";}
 		};
 
@@ -327,10 +339,10 @@ namespace Alice
 
 
 	template<>
-	struct MakeType<Stringkey("double")>
+	struct MakeType<Stringkey("double")>:public MakeTypeBase
 		{
 		typedef double Type;
-		static constexpr const char* descriptionGet()
+		static constexpr const char* descriptionLongGet()
 			{return "A floating point value, double precision";}
 		};
 
@@ -349,10 +361,10 @@ namespace Alice
 //#	--------------------
 
 	template<>
-	struct MakeType<Stringkey("string")>
+	struct MakeType<Stringkey("string")>:public MakeTypeBase
 		{
 		typedef std::string Type;
-		static constexpr const char* descriptionGet()
+		static constexpr const char* descriptionLongGet()
 			{return "An UTF-8 encoded string";}
 		};
 
