@@ -1,4 +1,10 @@
-//@	{"targets":[{"name":"test","type":"application"}]}
+//@	{
+//@	"targets":
+//@		[{
+//@		 "name":"test","type":"application"
+//@		,"description":"Test application for the Alice package"
+//@		}]
+//@	}
 
 #include "commandline.hpp"
 
