@@ -322,7 +322,7 @@ namespace Alice
 	template<>
 	struct MakeType<Stringkey("float")>:public MakeTypeBase
 		{
-		typedef double Type;
+		typedef float Type;
 		static constexpr const char* descriptionLongGet()
 			{return "A floating point value, single precision";}
 		};
