@@ -188,6 +188,8 @@ namespace Alice
 				{fprintf(dest," := [%s]",type->second.first);}
 			if(type->second.second!=nullptr)
 				{fprintf(dest,"\n    %s\n",type->second.second);}
+			else
+				{putc('\n',dest);}
 			++type;
 			}
 		}
@@ -201,10 +203,13 @@ namespace Alice
 		m_entries.itemsEnum([N,dest,info]
 			(size_t index,Stringkey::HashValue key,const auto& x)
 			{
-			fprintf(dest,"\"%s\":",info[index].nameGet());
-			print(x.valueGet(),dest);
-			if(index + 1!=N)
-				{fprintf(dest,"\n,");}
+			if(x)
+				{
+				fprintf(dest,"\"%s\":",info[index].nameGet());
+				print(x.valueGet(),dest);
+				if(index + 1!=N)
+					{fprintf(dest,"\n,");}
+				}
 			});
 		fprintf(dest,"}\n");
 		}
