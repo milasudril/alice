@@ -148,7 +148,7 @@ namespace Alice
 	void CommandLine<OptionDescriptor>::help(bool headers_print,FILE* dest) const noexcept
 		{
 		fprintf(dest,"Command line options\n"
-			"====================\n\n"
+			"--------------------\n\n"
 			"This is a summary of all command line options. Values inside square brackets "
 			"are optional. For details on how to type values, see *Common types* below.\n\n");
 		Stringkey key_prev("");
@@ -178,7 +178,7 @@ namespace Alice
 			{return;}
 
 		fprintf(dest,"\nCommon types\n"
-			"============\n");
+			"------------\n");
 		auto type=types.begin();
 		auto type_end=types.end();
 		while(type!=type_end)
