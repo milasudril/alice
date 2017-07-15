@@ -185,7 +185,7 @@ namespace Alice
 			{
 			fprintf(dest,"\n%s",type->first.c_str());
 			if(type->second.first!=nullptr)
-				{fprintf(dest," := [%s]",type->second.first);}
+				{fprintf(dest," := (%s)",type->second.first);}
 			if(type->second.second!=nullptr)
 				{fprintf(dest,"\n    %s\n",type->second.second);}
 			else
