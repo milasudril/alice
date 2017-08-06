@@ -68,6 +68,11 @@ namespace Alice
 				"It is also possible to use a number. In this case, any non-zero value is "
 				"`true` and zero is `false`.";
 			}
+
+		static constexpr const char* descriptionShortGet()
+			{
+			return "`true` | `false` | `yes` | `no`";
+			}
 		};
 
 	inline void print(bool x,FILE* dest)
@@ -81,7 +86,7 @@ namespace Alice
 		auto ret=strtoull(str.c_str(), &ptr_end, 10);
 		if(errno==ERANGE)
 			{
-			ErrorHandler::rangeError(std::numeric_limits<unsigned long long>::min()	
+			ErrorHandler::rangeError(std::numeric_limits<unsigned long long>::min()
 				,std::numeric_limits<unsigned long long>::max());
 			}
 		return ret;
@@ -94,7 +99,7 @@ namespace Alice
 		auto ret=strtoll(str.c_str(), &ptr_end, 10);
 		if(errno==ERANGE)
 			{
-			ErrorHandler::rangeError(std::numeric_limits<long long>::min()	
+			ErrorHandler::rangeError(std::numeric_limits<long long>::min()
 				,std::numeric_limits<long long>::max());
 			}
 		return ret;
@@ -383,7 +388,7 @@ namespace Alice
 
 
 //#	Array stuff
-//# -----------	
+//# -----------
 
 	template<class T>
 	inline void print(const std::vector<T>& values,FILE* dest)
