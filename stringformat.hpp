@@ -16,15 +16,15 @@ namespace
 	template<class T,T n>
 	struct ToString< T,std::integral_constant<T,n> >
 		{
-		template<std::enable_if_t< std::is_signed<T>::value >* dummy=nullptr>
-		static constexpr auto toString()
+		template<class Dummy=int>
+		static constexpr auto toString(std::enable_if_t<std::is_signed<T>::value,Dummy> x=0)
 			{
 			constexpr const char* digits="0123456789";
 			return Alice::append(ToString< T,std::integral_constant<T,n/10> >::toString(),digits[-(n%10)]);
 			}
 
-		template<std::enable_if_t< std::is_unsigned<T>::value >* dummy=nullptr>
-		static constexpr auto toString()
+		template<class Dummy=int>
+		static constexpr auto toString(std::enable_if_t<std::is_unsigned<T>::value,Dummy> x=0)
 			{
 			constexpr const char* digits="0123456789";
 			return Alice::append(ToString< T,std::integral_constant<T,n/10> >::toString(),digits[n%10]);

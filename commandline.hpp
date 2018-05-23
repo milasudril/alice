@@ -34,11 +34,11 @@ namespace Alice
 
 			template<Stringkey::HashValue key>
 			const auto& get() const noexcept
-				{return m_entries.get<key>();}
+				{return m_entries.template get<key>();}
 
 			template<Stringkey::HashValue key>
 			auto& get() noexcept
-				{return m_entries.get<key>();}
+				{return m_entries.template get<key>();}
 
 			void print(FILE* dest=stdout) const noexcept;
 
@@ -206,7 +206,7 @@ namespace Alice
 			if(x)
 				{
 				fprintf(dest,"\"%s\":",info[index].nameGet());
-				print(x.valueGet(),dest);
+				Alice::print(x.valueGet(),dest);
 				if(index + 1!=N)
 					{fprintf(dest,"\n,");}
 				}

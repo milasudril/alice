@@ -99,11 +99,11 @@ namespace Alice
 					static constexpr auto multiplicity=OptionDescriptor::options[k-1].multiplicityGet();
 
 					typedef typename MultiplicitySelector<
-						 typename MakeType<element_type>::Type
+						 typename MakeType<static_cast<Stringkey::HashValue>(element_type)>::Type
 						,multiplicity>::Type ValueType;
 
 					static constexpr bool multi=MultiplicitySelector<
-						 typename MakeType<element_type>::Type
+						 typename MakeType<static_cast<Stringkey::HashValue>(element_type)>::Type
 						,multiplicity>::multi;
 
 					const ValueType& valueGet() const noexcept
