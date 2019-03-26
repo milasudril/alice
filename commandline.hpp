@@ -44,9 +44,13 @@ namespace Alice
 
 			void help(bool headers_print=0,FILE* dest=stdout) const noexcept;
 
+			size_t size() const noexcept
+				 {return m_entry_count;}
+
 		private:
 			OptionMap<OptionDescriptor> m_entries;
 			Array<Option,countof(OptionDescriptor::options)> m_info;
+			size_t m_entry_count;
 
 			static constexpr Array<Option,countof(OptionDescriptor::options)> make_info()
 				{
@@ -121,7 +125,7 @@ namespace Alice
 	template<class OptionDescriptor>
 	template<class ErrorHandler>
 	CommandLine<OptionDescriptor>::CommandLine(int argc,const char* const* argv)
-		:m_info(make_info())
+		:m_info(make_info()), m_entry_count(0)
 		{
 		ErrorHandler eh;
 		if(argc==0)
@@ -132,7 +136,7 @@ namespace Alice
 
 		auto options_loaded=optionsLoad(argc,argv
 			,KeyChecker< OptionMap<OptionDescriptor>,ErrorHandler >(m_entries,m_info.data,eh));
-
+		m_entry_count = options_loaded.size();
 		m_entries.itemsEnum([&options_loaded](size_t index,Stringkey::HashValue key,auto& x)
 			{
 			auto i=options_loaded.find(key);
