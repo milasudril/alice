@@ -456,7 +456,7 @@ namespace Alice
 					ret.push_back(Alice::make_value<typename Type::value_type,ErrorHandler>(*ptr));
 					++ptr;
 					}
-				return std::move(ret);
+				return ret;
 				}
 			};
 		}

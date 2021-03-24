@@ -103,7 +103,7 @@ namespace Alice
 							msg.data[msg.size()-1]=0;
 							throw msg;
 							}
-							
+
 						case ',':
 							++count;
 							break;
@@ -132,7 +132,7 @@ namespace Alice
 								msg.data[msg.size()-1]=0;
 								throw msg;
 								}
-							return std::move(ret);
+							return ret;
 						default:
 							buffer+=ch_in;
 						}
