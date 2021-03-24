@@ -145,5 +145,6 @@ Alice::optionsLoad(int argc,const char* const* argv
 		--argc;
 		++argv;
 		}
-	return std::move(ret);
+
+		return ret;
 	}
